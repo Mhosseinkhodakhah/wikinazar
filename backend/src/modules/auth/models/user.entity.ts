@@ -31,13 +31,13 @@ export class User {
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role!: Role;
 
-  @Column({ name: 'display_name', nullable: true })
+  @Column({ type: 'varchar', name: 'display_name', nullable: true })
   displayName!: string | null;
 
-  @Column({ name: 'avatar_url', nullable: true })
+  @Column({ type: 'varchar', name: 'avatar_url', nullable: true })
   avatarUrl!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   bio!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })

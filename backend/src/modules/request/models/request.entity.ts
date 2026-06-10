@@ -17,7 +17,7 @@ export class Request {
   @Column()
   title!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   description!: string | null;
 
   @Column({ default: 0 })

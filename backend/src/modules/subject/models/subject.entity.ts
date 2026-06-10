@@ -22,10 +22,10 @@ export class Subject {
   @Column({type :'varchar' ,nullable: true })
   description!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   category!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   icon!: string | null;
 
   @Column({ name: 'experience_count', default: 0 })
