@@ -40,8 +40,10 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(diffDay / 365)} سال پیش`;
 }
 
-const fallbackImage = 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400';
-const fallbackAvatar = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100';
+const fallbackImage =
+  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400';
+const fallbackAvatar =
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100';
 
 type MappedSubject = {
   id: string;
@@ -240,29 +242,37 @@ const MobileFeed = () => {
 
       {/* Feed - Subject Cards with Comment Sections */}
       <div className="space-y-3 p-3">
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
-          </div>
-        ) : filteredSubjects.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-20 text-center">
-            <span className="text-4xl">🔍</span>
-            <p className="text-sm font-bold text-gray-700">
-              نتیجه‌ای یافت نشد!
-            </p>
-            <p className="text-xs text-gray-500">با فیلترهای دیگه امتحان کن</p>
-            <button
-              onClick={() => {
-                setActiveCategory('all');
-                setSearch('');
-              }}
-              className="rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-teal-600"
-            >
-              حذف فیلترها
-            </button>
-          </div>
-        ) : (
-          filteredSubjects.map((subject) => {
+        {(() => {
+          if (loading) {
+            return (
+              <div className="flex items-center justify-center py-16">
+                <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
+              </div>
+            );
+          }
+          if (filteredSubjects.length === 0) {
+            return (
+              <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-20 text-center">
+                <span className="text-4xl">🔍</span>
+                <p className="text-sm font-bold text-gray-700">
+                  نتیجه‌ای یافت نشد!
+                </p>
+                <p className="text-xs text-gray-500">
+                  با فیلترهای دیگه امتحان کن
+                </p>
+                <button
+                  onClick={() => {
+                    setActiveCategory('all');
+                    setSearch('');
+                  }}
+                  className="rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-teal-600"
+                >
+                  حذف فیلترها
+                </button>
+              </div>
+            );
+          }
+          return filteredSubjects.map((subject) => {
             const subExperiences = getExperiencesForSubject(subject.id);
             const isExpanded = expandedSubject === subject.id;
 
@@ -444,8 +454,8 @@ const MobileFeed = () => {
                 )}
               </div>
             );
-          })
-        )}
+          });
+        })()}
       </div>
     </div>
   );

@@ -503,7 +503,10 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
                 </Link>
               )}
               <button
-                onClick={() => { logout(); setShowLogin(false); }}
+                onClick={() => {
+                  logout();
+                  setShowLogin(false);
+                }}
                 className="mr-1 text-[10px] text-gray-500 hover:text-red-500"
               >
                 خروج
@@ -1248,26 +1251,30 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     login(loginEmail, loginPassword)
-                      .then((ok) => { if (ok) setShowLogin(false); })
-                      .catch((err) => setLoginError(err instanceof Error ? err.message : 'خطا در ورود'));
+                      .then((ok) => {
+                        if (ok) setShowLogin(false);
+                      })
+                      .catch((err) =>
+                        setLoginError(
+                          err instanceof Error ? err.message : 'خطا در ورود',
+                        ),
+                      );
                   }
                 }}
                 placeholder="••••••••"
                 className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
               />
             </div>
-            {loginError && (
-              <p className="text-xs text-red-500">
-                {loginError}
-              </p>
-            )}
+            {loginError && <p className="text-xs text-red-500">{loginError}</p>}
             <button
               onClick={async () => {
                 try {
                   const ok = await login(loginEmail, loginPassword);
                   if (ok) setShowLogin(false);
                 } catch (err) {
-                  setLoginError(err instanceof Error ? err.message : 'خطا در ورود');
+                  setLoginError(
+                    err instanceof Error ? err.message : 'خطا در ورود',
+                  );
                 }
               }}
               className="w-full rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600 active:scale-[0.98]"
@@ -1276,7 +1283,11 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
             </button>
           </div>
           <button
-        onClick={() => { setShowLogin(false); setLoginPassword(''); setLoginError(false); }}
+            onClick={() => {
+              setShowLogin(false);
+              setLoginPassword('');
+              setLoginError(false);
+            }}
             className="mt-3 w-full text-xs text-gray-500 hover:text-gray-700"
           >
             بستن

@@ -592,14 +592,6 @@ const Dashboard = () => {
     }
   }, [fetchDashboard, user]);
 
-  if (authLoading || !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100" dir="rtl">
-        <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
-      </div>
-    );
-  }
-
   const handleEdit = useCallback(
     (id: string) => {
       const exp = experiences.find((e) => e.id === id);
@@ -647,6 +639,17 @@ const Dashboard = () => {
     },
     [toast, fetchDashboard],
   );
+
+  if (authLoading || !user) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center bg-gray-100"
+        dir="rtl"
+      >
+        <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
+      </div>
+    );
+  }
 
   const viewProps: ViewProps = {
     user,

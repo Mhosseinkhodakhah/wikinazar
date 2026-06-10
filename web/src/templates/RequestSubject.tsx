@@ -99,7 +99,10 @@ const RequestSubject = () => {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50" dir="rtl">
+      <div
+        className="flex min-h-screen items-center justify-center bg-gray-50"
+        dir="rtl"
+      >
         <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
       </div>
     );
@@ -107,7 +110,10 @@ const RequestSubject = () => {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 p-8 text-center" dir="rtl">
+      <div
+        className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 p-8 text-center"
+        dir="rtl"
+      >
         <Meta
           title="درخواست موضوع - ویکی‌نظر"
           description="برای ثبت درخواست وارد حساب خود شوید."

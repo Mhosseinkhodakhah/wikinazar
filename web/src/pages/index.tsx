@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+
 import { Base } from '../templates/Base';
 
 const Index = () => {

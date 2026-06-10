@@ -73,14 +73,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    try {
-      const result = await api.login(email, password);
-      setTokens(result.tokens.accessToken, result.tokens.refreshToken);
-      setUser(mapUser(result.user));
-      return true;
-    } catch (err) {
-      throw err;
-    }
+    const result = await api.login(email, password);
+    setTokens(result.tokens.accessToken, result.tokens.refreshToken);
+    setUser(mapUser(result.user));
+    return true;
   }, []);
 
   const register = useCallback(
@@ -90,19 +86,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password: string,
       displayName?: string,
     ) => {
-      try {
-        const result = await api.register({
-          email,
-          username,
-          password,
-          displayName,
-        });
-        setTokens(result.tokens.accessToken, result.tokens.refreshToken);
-        setUser(mapUser(result.user));
-        return true;
-      } catch (err) {
-        throw err;
-      }
+      const result = await api.register({
+        email,
+        username,
+        password,
+        displayName,
+      });
+      setTokens(result.tokens.accessToken, result.tokens.refreshToken);
+      setUser(mapUser(result.user));
+      return true;
     },
     [],
   );

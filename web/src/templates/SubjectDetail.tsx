@@ -523,7 +523,9 @@ const MobileSubjectDetail = ({
         </div>
       ) : (
         <div className="py-3 text-center">
-          <p className="mb-2 text-sm text-gray-600">برای ثبت تجربه باید وارد حساب خود شوید</p>
+          <p className="mb-2 text-sm text-gray-600">
+            برای ثبت تجربه باید وارد حساب خود شوید
+          </p>
           <Link
             href="/"
             className="inline-block rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-teal-600"
@@ -949,7 +951,9 @@ const DesktopSubjectDetail = ({
           </div>
         ) : (
           <div className="py-4 text-center">
-            <p className="mb-2 text-sm text-gray-600">برای ثبت تجربه باید وارد حساب خود شوید</p>
+            <p className="mb-2 text-sm text-gray-600">
+              برای ثبت تجربه باید وارد حساب خود شوید
+            </p>
             <Link
               href="/"
               className="inline-block rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-teal-600"
