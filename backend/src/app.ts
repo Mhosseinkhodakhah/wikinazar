@@ -18,7 +18,7 @@ export function createApp(): Express {
 
   // CORS — must come before helmet to handle preflight properly
   app.use(cors({
-    origin: env.corsOrigin,
+    origin: '*',
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
