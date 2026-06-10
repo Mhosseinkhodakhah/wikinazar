@@ -16,9 +16,16 @@ import { dashboardModule } from './modules/dashboard/dashboard.module';
 export function createApp(): Express {
   const app = express();
 
+  // CORS — must come before helmet to handle preflight properly
+  app.use(cors({
+    origin: env.corsOrigin,
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
+
   // Security
-  app.use(helmet());
-  app.use(cors({ origin: env.nodeEnv === 'production' ? process.env.CORS_ORIGIN : '*' }));
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
   // Rate limiting
   app.use(

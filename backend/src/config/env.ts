@@ -5,6 +5,7 @@ dotenv.config();
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5050', 10),
+  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
 
   database: {
     url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/experience_platform',
