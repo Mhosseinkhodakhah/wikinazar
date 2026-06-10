@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Meta } from '../layout/Meta';
 import type { RequestDTO } from '../utils/api';
 import { api } from '../utils/api';
+import { useAuth } from '../utils/AuthContext';
 import { useToast } from '../utils/ToastContext';
 
 const categories = [
@@ -37,6 +38,7 @@ function formatRelativeTime(dateString: string): string {
 }
 
 const RequestSubject = () => {
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: '',
@@ -94,6 +96,38 @@ const RequestSubject = () => {
       setSubmitting(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50" dir="rtl">
+        <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 p-8 text-center" dir="rtl">
+        <Meta
+          title="درخواست موضوع - ویکی‌نظر"
+          description="برای ثبت درخواست وارد حساب خود شوید."
+        />
+        <span className="text-5xl">🔐</span>
+        <h1 className="text-xl font-bold text-gray-800">
+          برای ثبت درخواست باید وارد حساب خود شوید
+        </h1>
+        <p className="text-sm text-gray-600">
+          لطفاً ابتدا وارد شوید یا ثبت‌نام کنید
+        </p>
+        <Link
+          href="/"
+          className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600"
+        >
+          بازگشت به صفحه اصلی
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div

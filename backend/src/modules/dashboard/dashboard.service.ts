@@ -5,6 +5,7 @@ import { Request } from '../request/models/request.entity';
 import { type DashboardResponse } from './interfaces/dashboard.interface';
 import { type UserResponse } from '../auth/interfaces/user.interface';
 import { UnauthorizedError } from '../../shared/errors/http-error';
+import { logger } from '../../shared/logger/logger';
 
 export class DashboardService {
   async getDashboard(userId: string, limit: number = 5): Promise<DashboardResponse> {
@@ -52,7 +53,7 @@ export class DashboardService {
     const avgRating = ratingStats?.avg ? parseFloat(ratingStats.avg) : 0;
     const totalExperiences = ratingStats?.count ? parseInt(ratingStats.count, 10) : 0;
 
-    return {
+    const result: DashboardResponse = {
       profile,
       stats: {
         totalExperiences,
@@ -81,5 +82,8 @@ export class DashboardService {
         updatedAt: req.updatedAt,
       })),
     };
+
+    logger.info('Dashboard retrieved', { userId, totalExperiences, totalRequests: requests.length });
+    return result;
   }
 }

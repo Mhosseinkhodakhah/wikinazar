@@ -36,6 +36,15 @@ export function getToken(): string | null {
   return token;
 }
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
+
 async function request<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -57,9 +66,11 @@ async function request<T>(
   const json = await res.json();
 
   if (!res.ok) {
-    throw new Error(
-      json.error?.message || `Request failed with status ${res.status}`,
-    );
+    const message = json.error?.message || `Request failed with status ${res.status}`;
+    if (res.status === 401) {
+      clearTokens();
+    }
+    throw new ApiError(message, res.status);
   }
 
   return json.data;

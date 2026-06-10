@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { api, type ExperienceDTO, type SubjectDTO } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 
 const categories = [
@@ -18,262 +19,103 @@ const categories = [
   { id: 'services', name: 'خدمات', icon: '🔧' },
 ];
 
-const subjects = [
-  {
-    id: 1,
-    name: 'آیفون ۱۵ پرو',
-    nameEn: 'iPhone 15 Pro',
-    type: 'tech',
-    rating: 4.5,
-    reviews: 12,
-    image: 'https://images.unsplash.com/photo-1696446702183-cbd13c4781b4?w=400',
-    description: 'تجربه استفاده از گوشی آیفون ۱۵ پرو',
-    tags: ['موبایل', 'اپل', 'لوکس'],
-  },
-  {
-    id: 2,
-    name: 'کافه نادری',
-    nameEn: 'Cafe Naderi',
-    type: 'food',
-    rating: 4.3,
-    reviews: 8,
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400',
-    description: 'تجربه حضور در کافه نادری تهران',
-    tags: ['کافه', 'سنتی', 'دنج'],
-  },
-  {
-    id: 5,
-    name: 'هدفون سونی WH-1000XM5',
-    nameEn: 'Sony WH-1000XM5',
-    type: 'tech',
-    rating: 4.8,
-    reviews: 9,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
-    description: 'بررسی هدفون حذف نویز سونی',
-    tags: ['هدفون', 'صوتی', 'سونی'],
-  },
-  {
-    id: 12,
-    name: 'فیلم جدایی نادر از سیمین',
-    nameEn: 'A Separation',
-    type: 'entertainment',
-    rating: 4.9,
-    reviews: 18,
-    image: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400',
-    description: 'نقد و بررسی فیلم جدایی نادر از سیمین',
-    tags: ['سینما', 'ایرانی', 'اسکار'],
-  },
-  {
-    id: 17,
-    name: 'کنسول پلی‌استیشن ۵',
-    nameEn: 'PlayStation 5',
-    type: 'gaming',
-    rating: 4.8,
-    reviews: 11,
-    image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400',
-    description: 'تجربه بازی با کنسول پلی‌استیشن ۵',
-    tags: ['گیمینگ', 'کنسول', 'سرگرمی'],
-  },
-  {
-    id: 13,
-    name: 'اسنپ',
-    nameEn: 'Snapp',
-    type: 'services',
-    rating: 3.8,
-    reviews: 25,
-    image: 'https://images.unsplash.com/photo-1562564055-71e051d33c19?w=400',
-    description: 'تجربه استفاده از سرویس اسنپ',
-    tags: ['تاکسی', 'اینترنتی', 'حمل و نقل'],
-  },
-  {
-    id: 9,
-    name: 'کتاب هنر شفاف اندیشیدن',
-    nameEn: 'Art of Clear Thinking',
-    type: 'education',
-    rating: 4.4,
-    reviews: 14,
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400',
-    description: 'بررسی کتاب هنر شفاف اندیشیدن',
-    tags: ['کتاب', 'توسعه فردی', 'روانشناسی'],
-  },
-  {
-    id: 14,
-    name: 'دیجی‌کالا',
-    nameEn: 'Digikala',
-    type: 'shopping',
-    rating: 4.0,
-    reviews: 22,
-    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
-    description: 'تجربه خرید از دیجی‌کالا',
-    tags: ['فروشگاه', 'آنلاین', 'اقتصادی'],
-  },
-  {
-    id: 16,
-    name: 'خودروی تارا',
-    nameEn: 'IKCO Tara',
-    type: 'automotive',
-    rating: 3.7,
-    reviews: 14,
-    image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400',
-    description: 'تجربه مالکیت و رانندگی با خودروی تارا',
-    tags: ['خودرو', 'ایرانی', 'اقتصادی'],
-  },
-  {
-    id: 15,
-    name: 'سالن زیبایی نگین',
-    nameEn: 'Negin Beauty Salon',
-    type: 'beauty',
-    rating: 4.6,
-    reviews: 8,
-    image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400',
-    description: 'تجربه خدمات سالن زیبایی نگین',
-    tags: ['زیبایی', 'مو', 'پوست'],
-  },
-  {
-    id: 18,
-    name: 'اسپاتیفای',
-    nameEn: 'Spotify',
-    type: 'music',
-    rating: 4.4,
-    reviews: 19,
-    image: 'https://images.unsplash.com/photo-1611339555312-f607c3b3a6f6?w=400',
-    description: 'تجربه استفاده از سرویس موسیقی اسپاتیفای',
-    tags: ['موسیقی', 'استریم', 'اشتراک'],
-  },
-];
+function formatRelativeTime(iso: string): string {
+  const now = Date.now();
+  const then = new Date(iso).getTime();
+  const diffMs = now - then;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+  const diffWeek = Math.floor(diffDay / 7);
+  const diffMonth = Math.floor(diffDay / 30);
 
-const experiences = [
-  {
-    id: 1,
-    subjectId: 1,
-    user: 'مریم کرمی',
-    avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-    rating: 5,
-    comment:
-      'واقعاً عالیه! دوربینش فوق‌العاده و باتری‌ش عالی شده نسبت به نسخه قبلی.',
-    date: '۲ ساعت پیش',
-    likes: 34,
-  },
-  {
-    id: 2,
-    subjectId: 1,
-    user: 'احمد رضایی',
-    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-    rating: 4,
-    comment: 'گوشی خوبی هست ولی قیمتش زیاد شده. از نظر کارایی عالیه.',
-    date: '۵ ساعت پیش',
-    likes: 21,
-  },
-  {
-    id: 3,
-    subjectId: 2,
-    user: 'سارا محمدی',
-    avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-    rating: 4,
-    comment: 'کافه‌ای دنج با فضای قدیمی و دلنشین. قهوه‌ش عالی بود.',
-    date: 'دیروز',
-    likes: 18,
-  },
-  {
-    id: 4,
-    subjectId: 5,
-    user: 'علی ناصری',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    rating: 5,
-    comment: 'بهترین هدفون حذف نویز بازار! موقع کار توی محیط شلوغ عالیه.',
-    date: '۳ روز پیش',
-    likes: 42,
-  },
-  {
-    id: 5,
-    subjectId: 12,
-    user: 'نرگس کریمی',
-    avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-    rating: 5,
-    comment: 'یکی از بهترین فیلم‌های تاریخ سینمای ایران. بازی‌ها فوق‌العاده.',
-    date: '۱ هفته پیش',
-    likes: 67,
-  },
-  {
-    id: 6,
-    subjectId: 17,
-    user: 'کیان رحیمی',
-    avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-    rating: 5,
-    comment: 'فوق‌العاده‌ست! گرافیک بی‌نظیر و لودینگ سریع.',
-    date: '۱ روز پیش',
-    likes: 45,
-  },
-  {
-    id: 7,
-    subjectId: 13,
-    user: 'نرگس کریمی',
-    avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-    rating: 3,
-    comment: 'سرویس خوبیه ولی قیمت‌ها زیاد شده. گاهی راننده کنسل می‌کنه.',
-    date: '۶ ساعت پیش',
-    likes: 29,
-  },
-  {
-    id: 8,
-    subjectId: 16,
-    user: 'امیر حسینی',
-    avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-    rating: 3,
-    comment: 'ماشین خوبیه برای قیمتش، اما مصرف سوختش بالاست.',
-    date: '۲ روز پیش',
-    likes: 17,
-  },
-  {
-    id: 9,
-    subjectId: 9,
-    user: 'سارا محمدی',
-    avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-    rating: 5,
-    comment:
-      'کتابی که دیدگاهتون رو نسبت به خیلی چیزها تغییر میده. حتماً بخونید.',
-    date: '۴ روز پیش',
-    likes: 38,
-  },
-  {
-    id: 10,
-    subjectId: 14,
-    user: 'رضا کریمی',
-    avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-    rating: 4,
-    comment:
-      'تجربه خرید خوبی بود. تنوع محصولات عالیه و ارسال به موقع انجام شد.',
-    date: '۳ روز پیش',
-    likes: 22,
-  },
-  {
-    id: 11,
-    subjectId: 15,
-    user: 'الناز صادقی',
-    avatar: 'https://randomuser.me/api/portraits/women/7.jpg',
-    rating: 5,
-    comment: 'بهترین سالن زیبایی که رفتم! کادر حرفه‌ای و محیط تمیز.',
-    date: '۶ ساعت پیش',
-    likes: 31,
-  },
-  {
-    id: 12,
-    subjectId: 18,
-    user: 'نرگس جعفری',
-    avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
-    rating: 4,
-    comment: 'برای کشف موسیقی جدید عالیه. پلی‌لیست‌هاش فوق‌العاده‌ان.',
-    date: '۴ روز پیش',
-    likes: 23,
-  },
-];
+  if (diffSec < 60) return 'همین الان';
+  if (diffMin < 60) return `${diffMin} دقیقه پیش`;
+  if (diffHour < 24) return `${diffHour} ساعت پیش`;
+  if (diffDay === 1) return 'دیروز';
+  if (diffDay < 7) return `${diffDay} روز پیش`;
+  if (diffWeek < 5) return `${diffWeek} هفته پیش`;
+  if (diffMonth < 12) return `${diffMonth} ماه پیش`;
+  return `${Math.floor(diffDay / 365)} سال پیش`;
+}
+
+const fallbackImage = 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400';
+const fallbackAvatar = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100';
+
+type MappedSubject = {
+  id: string;
+  name: string;
+  nameEn: string;
+  type: string;
+  rating: number;
+  reviews: number;
+  image: string;
+  description: string;
+  tags: string[];
+};
+
+type MappedExperience = {
+  id: string;
+  subjectId: string;
+  user: string;
+  avatar: string;
+  rating: number;
+  comment: string;
+  date: string;
+  likes: number;
+};
 
 const MobileFeed = () => {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
-  const [expandedSubject, setExpandedSubject] = useState<number | null>(null);
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
+  const [subjects, setSubjects] = useState<MappedSubject[]>([]);
+  const [experiences, setExperiences] = useState<MappedExperience[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [subjectsRes, experiencesRes] = await Promise.all([
+          api.getSubjects({ limit: 50 }),
+          api.getExperiences({ limit: 50 }),
+        ]);
+        setSubjects(
+          subjectsRes.subjects.map((s: SubjectDTO) => ({
+            id: s.id,
+            name: s.title,
+            nameEn: s.slug,
+            type: s.category || 'other',
+            rating: 0,
+            reviews: s.experienceCount,
+            image: s.icon || fallbackImage,
+            description: s.description || '',
+            tags: [],
+          })),
+        );
+        setExperiences(
+          experiencesRes.experiences.map((e: ExperienceDTO) => ({
+            id: e.id,
+            subjectId: e.subjectId,
+            user: e.author?.displayName || e.author?.username || 'کاربر',
+            avatar: e.author?.avatarUrl || fallbackAvatar,
+            rating: e.rating,
+            comment: e.content,
+            date: formatRelativeTime(e.createdAt),
+            likes: e.likes,
+          })),
+        );
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to load feed', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const filteredSubjects = useMemo(() => {
     let list = subjects;
@@ -290,21 +132,23 @@ const MobileFeed = () => {
       );
     }
     return list;
-  }, [activeCategory, search]);
+  }, [activeCategory, search, subjects]);
 
-  const getExperiencesForSubject = (subjectId: number) =>
+  const getExperiencesForSubject = (subjectId: string) =>
     experiences.filter((e) => e.subjectId === subjectId);
 
   const getCategoryName = (id: string) =>
     categories.find((c) => c.id === id)?.name ?? id;
 
-  const toggleLike = (id: number) => {
-    setLikedPosts((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const toggleLike = async (id: string) => {
+    try {
+      const { likes } = await api.likeExperience(id);
+      setExperiences((prev) =>
+        prev.map((exp) => (exp.id === id ? { ...exp, likes } : exp)),
+      );
+    } catch {
+      // silent fail
+    }
   };
 
   return (
@@ -396,7 +240,11 @@ const MobileFeed = () => {
 
       {/* Feed - Subject Cards with Comment Sections */}
       <div className="space-y-3 p-3">
-        {filteredSubjects.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
+          </div>
+        ) : filteredSubjects.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-20 text-center">
             <span className="text-4xl">🔍</span>
             <p className="text-sm font-bold text-gray-700">
@@ -518,19 +366,11 @@ const MobileFeed = () => {
                             <div className="mt-1.5 flex items-center gap-3 pr-9">
                               <button
                                 onClick={() => toggleLike(exp.id)}
-                                className={`flex items-center gap-1 text-[10px] font-medium transition-all ${
-                                  likedPosts.has(exp.id)
-                                    ? 'text-red-500'
-                                    : 'text-gray-500 hover:text-red-500'
-                                }`}
+                                className="flex items-center gap-1 text-[10px] font-medium text-gray-500 hover:text-red-500"
                               >
                                 <svg
                                   className="size-3.5"
-                                  fill={
-                                    likedPosts.has(exp.id)
-                                      ? 'currentColor'
-                                      : 'none'
-                                  }
+                                  fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
                                 >
@@ -541,7 +381,7 @@ const MobileFeed = () => {
                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                                   />
                                 </svg>
-                                {exp.likes + (likedPosts.has(exp.id) ? 1 : 0)}
+                                {exp.likes}
                               </button>
                               <button
                                 onClick={() => {

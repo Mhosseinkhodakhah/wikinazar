@@ -78,8 +78,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setTokens(result.tokens.accessToken, result.tokens.refreshToken);
       setUser(mapUser(result.user));
       return true;
-    } catch {
-      return false;
+    } catch (err) {
+      throw err;
     }
   }, []);
 
@@ -100,8 +100,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setTokens(result.tokens.accessToken, result.tokens.refreshToken);
         setUser(mapUser(result.user));
         return true;
-      } catch {
-        return false;
+      } catch (err) {
+        throw err;
       }
     },
     [],

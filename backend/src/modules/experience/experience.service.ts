@@ -53,6 +53,7 @@ export class ExperienceService {
     const cacheKey = `experiences:${JSON.stringify(query)}`;
     const cached = await getCache<{ experiences: ExperienceResponse[]; total: number }>(cacheKey);
     if (cached) {
+      logger.info('Experience findAll (cached)', { query });
       return { ...cached, page: query.page, limit: query.limit };
     }
 
@@ -73,6 +74,7 @@ export class ExperienceService {
     };
 
     await setCache(cacheKey, { experiences: result.experiences, total }, 60);
+    logger.info('Experience findAll', { total, page: query.page });
     return result;
   }
 
@@ -82,6 +84,7 @@ export class ExperienceService {
       throw new NotFoundError('Experience not found');
     }
 
+    logger.info('Experience findById', { id });
     return this.toResponse(exp);
   }
 
@@ -177,6 +180,7 @@ export class ExperienceService {
       experienceId: id,
     });
 
+    logger.info('Experience liked', { id, likes: updated.likes });
     return { likes: updated.likes };
   }
 
@@ -187,6 +191,7 @@ export class ExperienceService {
     }
 
     const stats = await this.repository.getSubjectRatingStats(subjectId);
+    logger.info('Experience getSubjectStats', { subjectId, averageRating: stats.average, totalExperiences: stats.count });
     return {
       averageRating: Math.round(stats.average * 10) / 10,
       totalExperiences: stats.count,

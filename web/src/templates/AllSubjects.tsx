@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Meta } from '../layout/Meta';
 import { api } from '../utils/api';
+import { useAuth } from '../utils/AuthContext';
+import { useToast } from '../utils/ToastContext';
 
 const categories = [
   { id: 'all', name: 'همه', icon: '🌟' },
@@ -79,6 +81,8 @@ const fallbackAvatar =
   'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100';
 
 const AllSubjects = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
@@ -171,13 +175,17 @@ const AllSubjects = () => {
     experiencesList.filter((e) => e.subjectId === subjectId);
 
   const toggleLike = async (id: string) => {
+    if (!user) {
+      toast('برای پسندیدن ابتدا وارد حساب خود شوید', 'error');
+      return;
+    }
     try {
       const { likes } = await api.likeExperience(id);
       setExperiencesList((prev) =>
         prev.map((exp) => (exp.id === id ? { ...exp, likes } : exp)),
       );
     } catch {
-      // silent fail
+      toast('خطا در ثبت پسندیدن', 'error');
     }
     setLikedPosts((prev) => {
       const next = new Set(prev);

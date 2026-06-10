@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Meta } from '../layout/Meta';
@@ -552,9 +553,10 @@ const MobileDashboardView = ({
 };
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const isMobile = useMobile();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'experiences' | 'requests'>(
     'experiences',
   );
@@ -566,6 +568,12 @@ const Dashboard = () => {
     content: string;
     rating: number;
   } | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace('/');
+    }
+  }, [user, authLoading, router]);
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -579,8 +587,18 @@ const Dashboard = () => {
   }, [toast]);
 
   useEffect(() => {
-    fetchDashboard();
-  }, [fetchDashboard]);
+    if (user) {
+      fetchDashboard();
+    }
+  }, [fetchDashboard, user]);
+
+  if (authLoading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-100" dir="rtl">
+        <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
+      </div>
+    );
+  }
 
   const handleEdit = useCallback(
     (id: string) => {

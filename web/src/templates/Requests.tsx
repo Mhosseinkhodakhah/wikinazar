@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Meta } from '../layout/Meta';
 import type { RequestDTO } from '../utils/api';
 import { api } from '../utils/api';
+import { useAuth } from '../utils/AuthContext';
 import { useToast } from '../utils/ToastContext';
 
 const categories = [
@@ -38,6 +39,7 @@ function formatRelativeTime(dateString: string): string {
 }
 
 const Requests = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'newest' | 'top'>('newest');
@@ -75,6 +77,10 @@ const Requests = () => {
   }, [activeCategory, sortBy]);
 
   const handleVote = async (id: string) => {
+    if (!user) {
+      toast('برای رای دادن ابتدا وارد حساب خود شوید', 'error');
+      return;
+    }
     try {
       const result = await api.voteRequest(id);
       setRequests((prev) =>

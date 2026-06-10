@@ -120,7 +120,7 @@ type MappedRequest = {
   status: string;
 };
 
-const Base = () => {
+const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   const isMobile = useMobile();
   const { user, login, logout } = useAuth();
   const { toast } = useToast();
@@ -129,7 +129,8 @@ const Base = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [showLogin, setShowLogin] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
-  const [loginError, setLoginError] = useState(false);
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState<string | false>(false);
   const [loading, setLoading] = useState(true);
   const [lightboxImg, setLightboxImg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -223,6 +224,12 @@ const Base = () => {
     const h = localStorage.getItem('searchHistory');
     if (h) setSearchHistory(JSON.parse(h));
   }, []);
+
+  useEffect(() => {
+    if (showLoginByDefault && !user) {
+      setShowLogin(true);
+    }
+  }, [showLoginByDefault, user]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -496,7 +503,7 @@ const Base = () => {
                 </Link>
               )}
               <button
-                onClick={logout}
+                onClick={() => { logout(); setShowLogin(false); }}
                 className="mr-1 text-[10px] text-gray-500 hover:text-red-500"
               >
                 خروج
@@ -1233,24 +1240,35 @@ const Base = () => {
               </label>
               <input
                 type="password"
+                value={loginPassword}
+                onChange={(e) => {
+                  setLoginPassword(e.target.value);
+                  setLoginError(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    login(loginEmail, loginPassword)
+                      .then((ok) => { if (ok) setShowLogin(false); })
+                      .catch((err) => setLoginError(err instanceof Error ? err.message : 'خطا در ورود'));
+                  }
+                }}
                 placeholder="••••••••"
                 className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
               />
             </div>
             {loginError && (
               <p className="text-xs text-red-500">
-                ایمیل یا رمز عبور اشتباه است
+                {loginError}
               </p>
             )}
-            <p className="text-[10px] text-gray-500">
-              حساب‌های آزمایشی: maryam@example.com / ahmad@example.com /
-              sara@example.com
-            </p>
             <button
               onClick={async () => {
-                const ok = await login(loginEmail, '');
-                if (ok) setShowLogin(false);
-                else setLoginError(true);
+                try {
+                  const ok = await login(loginEmail, loginPassword);
+                  if (ok) setShowLogin(false);
+                } catch (err) {
+                  setLoginError(err instanceof Error ? err.message : 'خطا در ورود');
+                }
               }}
               className="w-full rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600 active:scale-[0.98]"
             >
@@ -1258,7 +1276,7 @@ const Base = () => {
             </button>
           </div>
           <button
-            onClick={() => setShowLogin(false)}
+        onClick={() => { setShowLogin(false); setLoginPassword(''); setLoginError(false); }}
             className="mt-3 w-full text-xs text-gray-500 hover:text-gray-700"
           >
             بستن

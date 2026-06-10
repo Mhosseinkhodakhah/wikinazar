@@ -22,7 +22,7 @@ const categoryOptions = [
 
 const SubmitExperience = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const [subjects, setSubjects] = useState<SubjectDTO[]>([]);
@@ -128,6 +128,38 @@ const SubmitExperience = () => {
       setSubmitting(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50" dir="rtl">
+        <div className="size-8 animate-spin rounded-full border-4 border-teal-200 border-t-teal-500" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 p-8 text-center" dir="rtl">
+        <Meta
+          title="ثبت تجربه جدید - ویکی‌نظر"
+          description="برای ثبت تجربه وارد حساب خود شوید."
+        />
+        <span className="text-5xl">🔐</span>
+        <h1 className="text-xl font-bold text-gray-800">
+          برای ثبت تجربه باید وارد حساب خود شوید
+        </h1>
+        <p className="text-sm text-gray-600">
+          لطفاً ابتدا وارد شوید یا ثبت‌نام کنید
+        </p>
+        <Link
+          href="/"
+          className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600"
+        >
+          بازگشت به صفحه اصلی
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div

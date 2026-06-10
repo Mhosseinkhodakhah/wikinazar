@@ -42,6 +42,7 @@ export class RequestService {
     const cacheKey = `requests:${JSON.stringify(query)}`;
     const cached = await getCache<{ requests: RequestResponse[]; total: number }>(cacheKey);
     if (cached) {
+      logger.info('Request findAll (cached)', { query });
       return { ...cached, page: query.page, limit: query.limit };
     }
 
@@ -60,6 +61,7 @@ export class RequestService {
     };
 
     await setCache(cacheKey, { requests: result.requests, total }, 60);
+    logger.info('Request findAll', { total, page: query.page });
     return result;
   }
 
@@ -96,6 +98,7 @@ export class RequestService {
       requestId: id,
     });
 
+    logger.info('Request voted', { id, votes: updated.votes });
     return { votes: updated.votes };
   }
 

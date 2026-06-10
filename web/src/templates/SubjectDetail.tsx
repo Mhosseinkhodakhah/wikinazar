@@ -204,6 +204,10 @@ const SubjectDetail = () => {
   };
 
   const handleLike = async (expId: string) => {
+    if (!user) {
+      toast('برای پسندیدن ابتدا وارد حساب خود شوید', 'error');
+      return;
+    }
     try {
       const result = await api.likeExperience(expId);
       setExperiences((prev) =>
@@ -314,7 +318,7 @@ const MobileSubjectDetail = ({
   onSubmitExperience,
   onLikeExperience,
   toast,
-  user: _user,
+  user,
 }: DetailProps) => (
   <div className="min-h-screen bg-gray-100 text-gray-800" dir="rtl">
     <Meta
@@ -475,47 +479,59 @@ const MobileSubjectDetail = ({
     {/* New Experience Form */}
     <div className="mx-3 mt-3 rounded-xl border border-dashed border-teal-300 bg-teal-50/30 p-4">
       <h3 className="mb-3 text-sm font-bold text-gray-800">ثبت تجربه جدید</h3>
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-700">امتیاز:</span>
-          <StarRating value={newRating} onChange={setNewRating} />
+      {user ? (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-700">امتیاز:</span>
+            <StarRating value={newRating} onChange={setNewRating} />
+          </div>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="تجربه‌ات را بنویس..."
+            rows={2}
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs text-gray-700 placeholder:text-gray-500 focus:border-teal-400 focus:outline-none"
+          />
+          <div className="flex items-center gap-2">
+            <label className="flex cursor-pointer items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-[10px] font-semibold text-gray-700 transition-all hover:border-teal-300 hover:bg-teal-50">
+              📷 عکس
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    setPhotoPreview(URL.createObjectURL(e.target.files[0]));
+                    toast('عکس اضافه شد', 'success');
+                  }
+                }}
+              />
+            </label>
+            {photoPreview && (
+              <span className="text-[10px] font-semibold text-green-700">
+                ✅ انتخاب شد
+              </span>
+            )}
+            <button
+              onClick={onSubmitExperience}
+              disabled={!newComment.trim()}
+              className="mr-auto rounded-lg bg-gradient-to-r from-teal-500 to-cyan-500 px-5 py-1.5 text-[11px] font-bold text-white shadow-sm transition-all hover:from-teal-600 hover:to-cyan-600 disabled:opacity-50"
+            >
+              ارسال
+            </button>
+          </div>
         </div>
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="تجربه‌ات را بنویس..."
-          rows={2}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs text-gray-700 placeholder:text-gray-500 focus:border-teal-400 focus:outline-none"
-        />
-        <div className="flex items-center gap-2">
-          <label className="flex cursor-pointer items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-[10px] font-semibold text-gray-700 transition-all hover:border-teal-300 hover:bg-teal-50">
-            📷 عکس
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  setPhotoPreview(URL.createObjectURL(e.target.files[0]));
-                  toast('عکس اضافه شد', 'success');
-                }
-              }}
-            />
-          </label>
-          {photoPreview && (
-            <span className="text-[10px] font-semibold text-green-700">
-              ✅ انتخاب شد
-            </span>
-          )}
-          <button
-            onClick={onSubmitExperience}
-            disabled={!newComment.trim()}
-            className="mr-auto rounded-lg bg-gradient-to-r from-teal-500 to-cyan-500 px-5 py-1.5 text-[11px] font-bold text-white shadow-sm transition-all hover:from-teal-600 hover:to-cyan-600 disabled:opacity-50"
+      ) : (
+        <div className="py-3 text-center">
+          <p className="mb-2 text-sm text-gray-600">برای ثبت تجربه باید وارد حساب خود شوید</p>
+          <Link
+            href="/"
+            className="inline-block rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-teal-600"
           >
-            ارسال
-          </button>
+            ورود به حساب
+          </Link>
         </div>
-      </div>
+      )}
     </div>
 
     {/* Experiences */}
@@ -670,7 +686,7 @@ const DesktopSubjectDetail = ({
   onSubmitExperience,
   onLikeExperience,
   toast,
-  user: _user,
+  user,
 }: DetailProps) => (
   <div className="min-h-screen bg-gray-100 text-gray-700 antialiased" dir="rtl">
     <Meta
@@ -889,47 +905,59 @@ const DesktopSubjectDetail = ({
         <h3 className="mb-3 text-sm font-bold text-gray-800">
           تجربه خودت را ثبت کن
         </h3>
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-600">امتیاز تو:</span>
-            <StarRating value={newRating} onChange={setNewRating} />
+        {user ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-600">امتیاز تو:</span>
+              <StarRating value={newRating} onChange={setNewRating} />
+            </div>
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="تجربه‌ات را بنویس..."
+              rows={3}
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
+            />
+            <div className="flex items-center gap-2">
+              <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs text-gray-600 transition-all hover:border-teal-200 hover:bg-teal-50">
+                📷 عکس
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setPhotoPreview(URL.createObjectURL(e.target.files[0]));
+                      toast('عکس اضافه شد', 'success');
+                    }
+                  }}
+                />
+              </label>
+              {photoPreview && (
+                <span className="text-[10px] text-green-600">
+                  ✅ عکس انتخاب شد
+                </span>
+              )}
+              <button
+                onClick={onSubmitExperience}
+                disabled={!newComment.trim()}
+                className="rounded-lg bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:from-teal-600 hover:to-cyan-600 disabled:opacity-50"
+              >
+                ارسال تجربه
+              </button>
+            </div>
           </div>
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="تجربه‌ات را بنویس..."
-            rows={3}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
-          />
-          <div className="flex items-center gap-2">
-            <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs text-gray-600 transition-all hover:border-teal-200 hover:bg-teal-50">
-              📷 عکس
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    setPhotoPreview(URL.createObjectURL(e.target.files[0]));
-                    toast('عکس اضافه شد', 'success');
-                  }
-                }}
-              />
-            </label>
-            {photoPreview && (
-              <span className="text-[10px] text-green-600">
-                ✅ عکس انتخاب شد
-              </span>
-            )}
-            <button
-              onClick={onSubmitExperience}
-              disabled={!newComment.trim()}
-              className="rounded-lg bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:from-teal-600 hover:to-cyan-600 disabled:opacity-50"
+        ) : (
+          <div className="py-4 text-center">
+            <p className="mb-2 text-sm text-gray-600">برای ثبت تجربه باید وارد حساب خود شوید</p>
+            <Link
+              href="/"
+              className="inline-block rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-teal-600"
             >
-              ارسال تجربه
-            </button>
+              ورود به حساب
+            </Link>
           </div>
-        </div>
+        )}
       </div>
       <div className="space-y-4">
         {subjectExperiences.map((exp) => (
