@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Vazirmatn', system-ui, sans-serif;
+    scroll-behavior: smooth;
+    font-feature-settings: 'ss01' 1, 'ss02' 1, 'ss03' 1, 'kern' 1;
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    line-height: 1.8;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.5;
+    font-weight: 700;
+  }
+  input, textarea, select {
+    line-height: 1.7;
+  }
+  label {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  *:focus-visible {
+    outline: 2px solid #f59e0b;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}
