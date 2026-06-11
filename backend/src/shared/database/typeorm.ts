@@ -6,7 +6,9 @@ import { logger } from '../logger/logger';
 import { User } from '../../modules/auth/models/user.entity';
 import { Subject } from '../../modules/subject/models/subject.entity';
 import { Experience } from '../../modules/experience/models/experience.entity';
+import { ExperienceLike } from '../../modules/experience/models/experience-like.entity';
 import { Request } from '../../modules/request/models/request.entity';
+import { RequestVote } from '../../modules/request/models/request-vote.entity';
 
 let dataSource: DataSource;
 
@@ -15,7 +17,7 @@ export function getDataSource(): DataSource {
     dataSource = new DataSource({
       type: 'postgres',
       url: env.database.url,
-      entities: [User, Subject, Experience, Request],
+      entities: [User, Subject, Experience, ExperienceLike, Request, RequestVote],
       synchronize: env.nodeEnv !== 'production',
       logging: env.nodeEnv !== 'production',
     });

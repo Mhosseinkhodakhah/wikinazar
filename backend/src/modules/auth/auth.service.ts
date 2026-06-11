@@ -36,7 +36,7 @@ export class AuthService {
     };
   }
 
-  private generateTokens(user: { id: string; email: string; role: string }): {
+  private generateTokens(user: { id: string; email: string; role: string; username: string }): {
     accessToken: string;
     refreshToken: string;
   } {
@@ -44,6 +44,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
+      username: user.username,
     };
 
     return {

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+import { LoginModal } from '../components/LoginModal';
 import { Meta } from '../layout/Meta';
 import type { RequestDTO } from '../utils/api';
 import { api } from '../utils/api';
@@ -100,6 +101,8 @@ const RequestSubject = () => {
     );
   }
 
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   if (!user) {
     return (
       <div
@@ -117,12 +120,19 @@ const RequestSubject = () => {
         <p className="text-sm text-gray-600">
           لطفاً ابتدا وارد شوید یا ثبت‌نام کنید
         </p>
+        <button
+          onClick={() => setShowLoginModal(true)}
+          className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600"
+        >
+          ورود / ثبت‌نام
+        </button>
         <Link
           href="/"
-          className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600"
+          className="text-xs text-gray-500 hover:text-gray-700"
         >
           بازگشت به صفحه اصلی
         </Link>
+        <LoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
       </div>
     );
   }

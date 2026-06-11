@@ -2,6 +2,9 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt.utils';
 import { UnauthorizedError } from '../../../shared/errors/http-error';
 import { Role } from '../models/user.entity';
+import { UserRepository } from '../repositories/user.repository';
+
+const userRepository = new UserRepository();
 
 export function authGuard(req: Request, _res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
@@ -19,13 +22,23 @@ export function authGuard(req: Request, _res: Response, next: NextFunction): voi
 
   try {
     const payload = verifyToken(token);
-    req.user = {
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role as Role,
-      username: '',
-    };
-    next();
+
+    // Verify user still exists in the database
+    userRepository.findById(payload.sub).then((user) => {
+      if (!user) {
+        return next(new UnauthorizedError('User no longer exists'));
+      }
+
+      req.user = {
+        id: payload.sub,
+        email: payload.email,
+        role: user.role,
+        username: payload.username || user.username,
+      };
+      next();
+    }).catch(() => {
+      return next(new UnauthorizedError('User verification failed'));
+    });
   } catch (error) {
     return next(new UnauthorizedError('Invalid or expired token'));
   }

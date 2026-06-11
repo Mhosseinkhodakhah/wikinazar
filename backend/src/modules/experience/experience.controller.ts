@@ -43,8 +43,9 @@ export const experienceController = {
   }),
 
   like: asyncHandler(async (req: Request, res: Response) => {
-    logger.info('Experience like', { id: req.params.id, userId: req.user?.id });
-    const result = await experienceService.like(req.params.id);
+    const userId = req.user!.id;
+    logger.info('Experience like', { id: req.params.id, userId });
+    const result = await experienceService.like(req.params.id, userId);
     res.status(200).json({ success: true, data: result });
   }),
 

@@ -1,7 +1,7 @@
 import { SubjectRepository } from './repositories/subject.repository';
 import { type CreateSubjectDto, type UpdateSubjectDto, type SubjectQueryDto } from './dto/subject.dto';
 import { type SubjectResponse } from './interfaces/subject.interface';
-import { NotFoundError } from '../../shared/errors/http-error';
+import { NotFoundError, ConflictError } from '../../shared/errors/http-error';
 import { getCache, setCache, invalidateCachePattern } from '../../shared/redis/redis.client';
 import { publishEvent } from '../../shared/kafka/kafka.client';
 import { logger } from '../../shared/logger/logger';
@@ -95,6 +95,12 @@ export class SubjectService {
 
   async create(dto: CreateSubjectDto): Promise<SubjectResponse> {
     const slug = this.slugify(dto.title);
+
+    const existingSlug = await this.repository.findBySlug(slug);
+    if (existingSlug) {
+      throw new ConflictError('A subject with this title already exists');
+    }
+
     const subject = await this.repository.create({
       title: dto.title,
       slug,
@@ -123,8 +129,13 @@ export class SubjectService {
 
     const updateData: Record<string, unknown> = {};
     if (dto.title !== undefined) {
+      const newSlug = this.slugify(dto.title);
+      const existingSlug = await this.repository.findBySlug(newSlug);
+      if (existingSlug && existingSlug.id !== id) {
+        throw new ConflictError('A subject with this title already exists');
+      }
       updateData.title = dto.title;
-      updateData.slug = this.slugify(dto.title);
+      updateData.slug = newSlug;
     }
     if (dto.description !== undefined) updateData.description = dto.description;
     if (dto.category !== undefined) updateData.category = dto.category;

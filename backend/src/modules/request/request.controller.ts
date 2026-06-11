@@ -21,8 +21,9 @@ export const requestController = {
   }),
 
   vote: asyncHandler(async (req: Request, res: Response) => {
-    logger.info('Request vote', { id: req.params.id, userId: req.user?.id });
-    const result = await requestService.vote(req.params.id);
+    const userId = req.user!.id;
+    logger.info('Request vote', { id: req.params.id, userId });
+    const result = await requestService.vote(req.params.id, userId);
     res.status(200).json({ success: true, data: result });
   }),
 

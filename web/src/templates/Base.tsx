@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { LoginModal } from '../components/LoginModal';
 import { Meta } from '../layout/Meta';
 import type { ExperienceDTO, RequestDTO, SubjectDTO } from '../utils/api';
 import { api } from '../utils/api';
@@ -122,15 +123,12 @@ type MappedRequest = {
 
 const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   const isMobile = useMobile();
-  const { user, login, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
 
   const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [showLogin, setShowLogin] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginError, setLoginError] = useState<string | false>(false);
   const [loading, setLoading] = useState(true);
   const [lightboxImg, setLightboxImg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -1201,98 +1199,9 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
     </div>
   );
 
-  const LoginModal = () =>
-    showLogin ? (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-        onClick={() => setShowLogin(false)}
-      >
-        <div
-          className="mx-4 w-full max-w-sm rounded-2xl border border-gray-300 bg-white p-6 shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="mb-4 text-center">
-            <div className="mb-2 text-2xl">🔐</div>
-            <h3 className="text-lg font-bold text-gray-800">
-              ورود به ویکی‌نظر
-            </h3>
-            <p className="mt-1 text-xs text-gray-600">
-              با حساب کاربری خود وارد شوید
-            </p>
-          </div>
-          <div className="space-y-3">
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                ایمیل
-              </label>
-              <input
-                value={loginEmail}
-                onChange={(e) => {
-                  setLoginEmail(e.target.value);
-                  setLoginError(false);
-                }}
-                placeholder="example@email.com"
-                className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-700">
-                رمز عبور
-              </label>
-              <input
-                type="password"
-                value={loginPassword}
-                onChange={(e) => {
-                  setLoginPassword(e.target.value);
-                  setLoginError(false);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    login(loginEmail, loginPassword)
-                      .then((ok) => {
-                        if (ok) setShowLogin(false);
-                      })
-                      .catch((err) =>
-                        setLoginError(
-                          err instanceof Error ? err.message : 'خطا در ورود',
-                        ),
-                      );
-                  }
-                }}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
-              />
-            </div>
-            {loginError && <p className="text-xs text-red-500">{loginError}</p>}
-            <button
-              onClick={async () => {
-                try {
-                  const ok = await login(loginEmail, loginPassword);
-                  if (ok) setShowLogin(false);
-                } catch (err) {
-                  setLoginError(
-                    err instanceof Error ? err.message : 'خطا در ورود',
-                  );
-                }
-              }}
-              className="w-full rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600 active:scale-[0.98]"
-            >
-              ورود
-            </button>
-          </div>
-          <button
-            onClick={() => {
-              setShowLogin(false);
-              setLoginPassword('');
-              setLoginError(false);
-            }}
-            className="mt-3 w-full text-xs text-gray-500 hover:text-gray-700"
-          >
-            بستن
-          </button>
-        </div>
-      </div>
-    ) : null;
+  const LoginModalComponent = () => (
+    <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
+  );
 
   const RecommendedSection = () => {
     let preferredCategory = 'all';
@@ -1452,7 +1361,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
       {lightboxImg && (
         <Lightbox src={lightboxImg} onClose={() => setLightboxImg('')} />
       )}
-      <LoginModal />
+      <LoginModalComponent />
 
       <nav
         className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-300 bg-white/80 backdrop-blur-lg md:hidden"

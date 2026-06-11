@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+
+import { LoginModal } from '../components/LoginModal';
+import { useAuth } from '../utils/AuthContext';
 
 type Props = {
   children: ReactNode;
@@ -96,16 +99,41 @@ function UserIcon({ active }: { active: boolean }) {
   );
 }
 
-const tabs = [
-  { href: '/', label: 'خانه', icon: HomeIcon },
-  { href: '/subjects', label: 'موضوعات', icon: GridIcon },
-  { href: '/submit', label: 'ثبت', icon: PlusIcon },
-  { href: '/requests', label: 'درخواست‌ها', icon: ClipboardIcon },
-  { href: '/dashboard', label: 'پروفایل', icon: UserIcon },
-];
+function LockIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      className="size-5"
+      fill={active ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={active ? 0 : 2}
+        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+      />
+    </svg>
+  );
+}
 
 const MobileLayout = ({ children }: Props) => {
   const router = useRouter();
+  const { user } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+
+  const tabs = [
+    { href: '/', label: 'خانه', icon: HomeIcon },
+    { href: '/subjects', label: 'موضوعات', icon: GridIcon },
+    { href: '/submit', label: 'ثبت', icon: PlusIcon },
+    { href: '/requests', label: 'درخواست‌ها', icon: ClipboardIcon },
+    {
+      href: user ? '/dashboard' : undefined,
+      label: user ? 'پروفایل' : 'ورود',
+      icon: user ? UserIcon : LockIcon,
+      onClick: user ? undefined : () => setShowLogin(true),
+    },
+  ];
 
   return (
     <div className="mobile-layout min-h-screen bg-gray-50 pb-16">
@@ -114,15 +142,29 @@ const MobileLayout = ({ children }: Props) => {
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white shadow-lg">
         <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-1">
           {tabs.map((tab) => {
-            const isActive =
-              tab.href === '/'
+            const isActive = tab.href
+              ? tab.href === '/'
                 ? router.pathname === '/'
-                : router.pathname.startsWith(tab.href);
+                : router.pathname.startsWith(tab.href)
+              : false;
+
+            if (tab.onClick) {
+              return (
+                <button
+                  key={tab.label}
+                  onClick={tab.onClick}
+                  className="flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[10px] font-medium transition-all text-gray-400 hover:text-gray-600"
+                >
+                  <tab.icon active={false} />
+                  {tab.label}
+                </button>
+              );
+            }
 
             return (
               <Link
                 key={tab.href}
-                href={tab.href}
+                href={tab.href!}
                 className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[10px] font-medium transition-all ${
                   isActive
                     ? 'text-teal-600'
@@ -136,6 +178,8 @@ const MobileLayout = ({ children }: Props) => {
           })}
         </div>
       </nav>
+
+      <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
     </div>
   );
 };

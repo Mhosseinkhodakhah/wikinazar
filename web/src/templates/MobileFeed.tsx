@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
+import { LoginModal } from '../components/LoginModal';
 import { api, type ExperienceDTO, type SubjectDTO } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 
@@ -76,6 +77,7 @@ const MobileFeed = () => {
   const [subjects, setSubjects] = useState<MappedSubject[]>([]);
   const [experiences, setExperiences] = useState<MappedExperience[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -174,12 +176,12 @@ const MobileFeed = () => {
                 />
               </Link>
             ) : (
-              <Link
-                href="/?login=1"
+              <button
+                onClick={() => setShowLogin(true)}
                 className="rounded-lg bg-teal-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-teal-600"
               >
                 ورود
-              </Link>
+              </button>
             )}
           </div>
         </div>
@@ -457,6 +459,8 @@ const MobileFeed = () => {
           });
         })()}
       </div>
+
+      <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
     </div>
   );
 };

@@ -84,22 +84,23 @@ export class RequestService {
     return this.toResponse(request);
   }
 
-  async vote(id: string): Promise<{ votes: number }> {
+  async vote(id: string, userId: string): Promise<{ votes: number; voted: boolean }> {
     const existing = await this.repository.findById(id);
     if (!existing) {
       throw new NotFoundError('Request not found');
     }
 
-    const updated = await this.repository.incrementVotes(id);
+    const result = await this.repository.toggleVote(id, userId);
     await invalidateCachePattern('requests:*');
 
     await publishEvent('request.events', {
-      type: 'request.voted',
+      type: result.voted ? 'request.voted' : 'request.unvoted',
       requestId: id,
+      userId,
     });
 
-    logger.info('Request voted', { id, votes: updated.votes });
-    return { votes: updated.votes };
+    logger.info('Request vote toggled', { id, userId, voted: result.voted, votes: result.votes });
+    return result;
   }
 
   async updateStatus(id: string, status: string): Promise<RequestResponse> {

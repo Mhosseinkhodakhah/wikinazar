@@ -1,7 +1,8 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api/v1';
 
 let token: string | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
 export function setTokens(access: string, refresh: string) {
   token = access;
@@ -13,6 +14,7 @@ export function setTokens(access: string, refresh: string) {
 
 export function clearTokens() {
   token = null;
+  refreshPromise = null;
   if (typeof window !== 'undefined') {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -34,6 +36,33 @@ export function getRefreshToken(): string | null {
 
 export function getToken(): string | null {
   return token;
+}
+
+async function tryRefreshToken(): Promise<boolean> {
+  const rt = getRefreshToken();
+  if (!rt) return false;
+
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: rt }),
+      });
+      if (!res.ok) return false;
+      const json = await res.json();
+      setTokens(json.data.accessToken, json.data.refreshToken);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 }
 
 export class ApiError extends Error {
@@ -59,10 +88,22 @@ async function request<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
+  let res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers,
   });
+
+  // On 401, try refreshing the token once
+  if (res.status === 401) {
+    const refreshed = await tryRefreshToken();
+    if (refreshed) {
+      headers.Authorization = `Bearer ${token}`;
+      res = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+      });
+    }
+  }
 
   const json = await res.json();
 
@@ -71,6 +112,9 @@ async function request<T>(
       json.error?.message || `Request failed with status ${res.status}`;
     if (res.status === 401) {
       clearTokens();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      }
     }
     throw new ApiError(message, res.status);
   }
@@ -200,7 +244,7 @@ export const api = {
     request<void>(`/experiences/${id}`, { method: 'DELETE' }),
 
   likeExperience: (id: string) =>
-    request<{ likes: number }>(`/experiences/${id}/like`, { method: 'POST' }),
+    request<{ likes: number; liked: boolean }>(`/experiences/${id}/like`, { method: 'POST' }),
 
   getSubjectStats: (subjectId: string) =>
     request<{ averageRating: number; totalExperiences: number }>(
@@ -237,7 +281,7 @@ export const api = {
     }),
 
   voteRequest: (id: string) =>
-    request<{ votes: number }>(`/requests/${id}/vote`, { method: 'POST' }),
+    request<{ votes: number; voted: boolean }>(`/requests/${id}/vote`, { method: 'POST' }),
 
   updateRequestStatus: (id: string, status: string) =>
     request<RequestDTO>(`/requests/${id}/status`, {

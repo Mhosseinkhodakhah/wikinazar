@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
+import { LoginModal } from '../components/LoginModal';
 import { Meta } from '../layout/Meta';
 import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
@@ -53,6 +54,7 @@ type DetailProps = {
   onLikeExperience: (id: string) => Promise<void>;
   toast: ReturnType<typeof useToast>['toast'];
   user: ReturnType<typeof useAuth>['user'];
+  onLoginClick: () => void;
 };
 
 const shareSubject = (name: string) => {
@@ -251,9 +253,40 @@ const SubjectDetail = () => {
 
   const imgs = subject.images.length > 0 ? subject.images : [subject.image];
 
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   if (isMobile) {
     return (
-      <MobileSubjectDetail
+      <>
+        <MobileSubjectDetail
+          subject={subject}
+          imgs={imgs}
+          selectedImg={selectedImg}
+          setSelectedImg={setSelectedImg}
+          subjectExperiences={experiences}
+          related={related}
+          newRating={newRating}
+          setNewRating={setNewRating}
+          newComment={newComment}
+          setNewComment={setNewComment}
+          photoPreview={photoPreview}
+          setPhotoPreview={setPhotoPreview}
+          setLightboxImg={setLightboxImg}
+          lightboxImg={lightboxImg}
+          onSubmitExperience={handleSubmit}
+          onLikeExperience={handleLike}
+          toast={toast}
+          user={user}
+          onLoginClick={() => setShowLoginModal(true)}
+        />
+        <LoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <DesktopSubjectDetail
         subject={subject}
         imgs={imgs}
         selectedImg={selectedImg}
@@ -272,31 +305,10 @@ const SubjectDetail = () => {
         onLikeExperience={handleLike}
         toast={toast}
         user={user}
+        onLoginClick={() => setShowLoginModal(true)}
       />
-    );
-  }
-
-  return (
-    <DesktopSubjectDetail
-      subject={subject}
-      imgs={imgs}
-      selectedImg={selectedImg}
-      setSelectedImg={setSelectedImg}
-      subjectExperiences={experiences}
-      related={related}
-      newRating={newRating}
-      setNewRating={setNewRating}
-      newComment={newComment}
-      setNewComment={setNewComment}
-      photoPreview={photoPreview}
-      setPhotoPreview={setPhotoPreview}
-      setLightboxImg={setLightboxImg}
-      lightboxImg={lightboxImg}
-      onSubmitExperience={handleSubmit}
-      onLikeExperience={handleLike}
-      toast={toast}
-      user={user}
-    />
+      <LoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+    </>
   );
 };
 
@@ -319,6 +331,7 @@ const MobileSubjectDetail = ({
   onLikeExperience,
   toast,
   user,
+  onLoginClick,
 }: DetailProps) => (
   <div className="min-h-screen bg-gray-100 text-gray-800" dir="rtl">
     <Meta
@@ -527,12 +540,12 @@ const MobileSubjectDetail = ({
           <p className="mb-2 text-sm text-gray-600">
             برای ثبت تجربه باید وارد حساب خود شوید
           </p>
-          <Link
-            href="/"
+          <button
+            onClick={onLoginClick}
             className="inline-block rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-teal-600"
           >
             ورود به حساب
-          </Link>
+          </button>
         </div>
       )}
     </div>
@@ -690,6 +703,7 @@ const DesktopSubjectDetail = ({
   onLikeExperience,
   toast,
   user,
+  onLoginClick,
 }: DetailProps) => (
   <div className="min-h-screen bg-gray-100 text-gray-700 antialiased" dir="rtl">
     <Meta
@@ -956,12 +970,12 @@ const DesktopSubjectDetail = ({
             <p className="mb-2 text-sm text-gray-600">
               برای ثبت تجربه باید وارد حساب خود شوید
             </p>
-            <Link
-              href="/"
+            <button
+              onClick={onLoginClick}
               className="inline-block rounded-lg bg-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-teal-600"
             >
               ورود به حساب
-            </Link>
+            </button>
           </div>
         )}
       </div>

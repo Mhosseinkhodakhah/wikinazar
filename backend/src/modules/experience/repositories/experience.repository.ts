@@ -1,14 +1,17 @@
 import { Repository, MoreThanOrEqual } from 'typeorm';
 import { getDataSource } from '../../../shared/database/typeorm';
 import { Experience } from '../models/experience.entity';
+import { ExperienceLike } from '../models/experience-like.entity';
 import { Subject } from '../../subject/models/subject.entity';
 
 export class ExperienceRepository {
   private repo: Repository<Experience>;
+  private likeRepo: Repository<ExperienceLike>;
   private subjectRepo: Repository<Subject>;
 
   constructor() {
     this.repo = getDataSource().getRepository(Experience);
+    this.likeRepo = getDataSource().getRepository(ExperienceLike);
     this.subjectRepo = getDataSource().getRepository(Subject);
   }
 
@@ -66,9 +69,25 @@ export class ExperienceRepository {
     await this.repo.delete(id);
   }
 
-  async incrementLikes(id: string): Promise<Experience> {
-    await this.repo.increment({ id }, 'likes', 1);
-    return this.repo.findOneByOrFail({ id });
+  async toggleLike(experienceId: string, userId: string): Promise<{ likes: number; liked: boolean }> {
+    const existing = await this.likeRepo.findOneBy({ experienceId, userId });
+
+    if (existing) {
+      await this.likeRepo.remove(existing);
+      await this.repo.decrement({ id: experienceId }, 'likes', 1);
+    } else {
+      const like = this.likeRepo.create({ experienceId, userId });
+      await this.likeRepo.save(like);
+      await this.repo.increment({ id: experienceId }, 'likes', 1);
+    }
+
+    const exp = await this.repo.findOneByOrFail({ id: experienceId });
+    return { likes: exp.likes, liked: !existing };
+  }
+
+  async hasUserLiked(experienceId: string, userId: string): Promise<boolean> {
+    const existing = await this.likeRepo.findOneBy({ experienceId, userId });
+    return !!existing;
   }
 
   async getSubjectRatingStats(subjectId: string): Promise<{ average: number; count: number }> {

@@ -16,9 +16,13 @@ import { dashboardModule } from './modules/dashboard/dashboard.module';
 export function createApp(): Express {
   const app = express();
 
+  // Trust proxy — required when behind reverse proxy (nginx, etc.)
+  // so rate limiter sees real client IPs instead of the proxy's IP
+  app.set('trust proxy', 1);
+
   // CORS — must come before helmet to handle preflight properly
   app.use(cors({
-    origin: '*',
+    origin: env.corsOrigin.split(',').map((s) => s.trim()),
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -27,11 +31,11 @@ export function createApp(): Express {
   // Security
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-  // Rate limiting
+  // Global rate limiting — per IP
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000,
-      max: 100,
+      max: 200,
       standardHeaders: true,
       legacyHeaders: false,
       message: { success: false, error: { message: 'Too many requests, please try again later' } },

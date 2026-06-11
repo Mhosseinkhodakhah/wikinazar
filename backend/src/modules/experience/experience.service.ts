@@ -166,22 +166,23 @@ export class ExperienceService {
     logger.info('Experience deleted', { id });
   }
 
-  async like(id: string): Promise<{ likes: number }> {
+  async like(id: string, userId: string): Promise<{ likes: number; liked: boolean }> {
     const existing = await this.repository.findById(id);
     if (!existing) {
       throw new NotFoundError('Experience not found');
     }
 
-    const updated = await this.repository.incrementLikes(id);
+    const result = await this.repository.toggleLike(id, userId);
     await invalidateCachePattern('experiences:*');
 
     await publishEvent('experience.events', {
-      type: 'experience.liked',
+      type: result.liked ? 'experience.liked' : 'experience.unliked',
       experienceId: id,
+      userId,
     });
 
-    logger.info('Experience liked', { id, likes: updated.likes });
-    return { likes: updated.likes };
+    logger.info('Experience like toggled', { id, userId, liked: result.liked, likes: result.likes });
+    return result;
   }
 
   async getSubjectStats(subjectId: string): Promise<{ averageRating: number; totalExperiences: number }> {
