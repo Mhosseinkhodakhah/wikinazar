@@ -118,7 +118,7 @@ const SubmitExperience = () => {
       });
 
       toast('تجربه شما با موفقیت ثبت شد!', 'success');
-      router.push(`/place/${subjectId}`);
+      router.push(`/subject/${subjectId}`);
     } catch (err) {
       toast(
         err instanceof Error ? err.message : 'ثبت تجربه با خطا مواجه شد',
@@ -473,9 +473,11 @@ const SubmitExperience = () => {
                             />
                             <button
                               onClick={() =>
-                                setUploadedImages((prev) =>
-                                  prev.filter((_, idx) => idx !== i),
-                                )
+                                setUploadedImages((prev) => {
+                                  const removed = prev[i];
+                                  if (removed) URL.revokeObjectURL(removed);
+                                  return prev.filter((_, idx) => idx !== i);
+                                })
                               }
                               className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-sm transition-all hover:bg-red-600"
                             >

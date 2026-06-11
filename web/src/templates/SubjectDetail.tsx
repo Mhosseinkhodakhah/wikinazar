@@ -501,6 +501,7 @@ const MobileSubjectDetail = ({
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files?.[0]) {
+                    if (photoPreview) URL.revokeObjectURL(photoPreview);
                     setPhotoPreview(URL.createObjectURL(e.target.files[0]));
                     toast('عکس اضافه شد', 'success');
                   }
@@ -929,6 +930,7 @@ const DesktopSubjectDetail = ({
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
+                      if (photoPreview) URL.revokeObjectURL(photoPreview);
                       setPhotoPreview(URL.createObjectURL(e.target.files[0]));
                       toast('عکس اضافه شد', 'success');
                     }

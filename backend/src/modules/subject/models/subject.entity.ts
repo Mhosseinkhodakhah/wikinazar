@@ -19,8 +19,8 @@ export class Subject {
   @Column({ unique: true })
   slug!: string;
 
-  @Column({type :'varchar' ,nullable: true })
-  description!: string;
+  @Column({ type: 'varchar', nullable: true })
+  description!: string | null;
 
   @Column({ type: 'varchar', nullable: true })
   category!: string | null;

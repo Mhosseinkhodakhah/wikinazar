@@ -1,6 +1,7 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { AppError } from '../errors/app-error';
 import { logger } from '../logger/logger';
+import { env } from '../../config';
 
 export function errorMiddleware(
   error: Error,
@@ -17,7 +18,7 @@ export function errorMiddleware(
       success: false,
       error: {
         message: error.message,
-        ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+        ...(env.nodeEnv === 'development' && { stack: error.stack }),
       },
     });
     return;

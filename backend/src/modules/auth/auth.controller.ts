@@ -28,9 +28,10 @@ export const authController = {
   }),
 
   refreshToken: asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user!.id;
-    logger.info('Auth refreshToken', { userId });
-    const result = await authService.refreshToken(userId);
+    const { refreshToken } = req.body;
+    logger.info('Auth refreshToken attempt');
+    const result = await authService.refreshToken(refreshToken);
+    logger.info('Auth refreshToken successful');
     res.status(200).json({ success: true, data: result });
   }),
 };

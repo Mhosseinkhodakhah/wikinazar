@@ -105,9 +105,10 @@ export const api = {
 
   getProfile: () => request<UserDTO>('/auth/profile'),
 
-  refreshToken: () =>
-    request<{ accessToken: string }>('/auth/refresh', {
+  refreshToken: (refreshToken: string) =>
+    request<{ accessToken: string; refreshToken: string }>('/auth/refresh', {
       method: 'POST',
+      body: JSON.stringify({ refreshToken }),
     }),
 
   // Subjects
@@ -117,7 +118,7 @@ export const api = {
     search?: string;
     category?: string;
     sortBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
+    sortOrder?: 'asc' | 'desc';
   }) => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));
@@ -158,7 +159,7 @@ export const api = {
     subjectId?: string;
     authorId?: string;
     sortBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
+    sortOrder?: 'asc' | 'desc';
   }) => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));
@@ -212,7 +213,7 @@ export const api = {
     limit?: number;
     status?: string;
     sortBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
+    sortOrder?: 'asc' | 'desc';
   }) => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));

@@ -7,16 +7,7 @@ import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 import { useToast } from '../utils/ToastContext';
 
-const categories = [
-  { id: 'tech', name: 'فناوری' },
-  { id: 'travel', name: 'سفر' },
-  { id: 'food', name: 'غذا' },
-  { id: 'education', name: 'آموزش' },
-  { id: 'health', name: 'سلامت' },
-  { id: 'entertainment', name: 'سرگرمی' },
-  { id: 'shopping', name: 'خرید' },
-  { id: 'services', name: 'خدمات' },
-];
+
 
 function formatRelativeTime(dateString: string): string {
   const now = new Date();
@@ -42,7 +33,6 @@ const RequestSubject = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: '',
-    category: 'tech',
     description: '',
   });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -51,7 +41,7 @@ const RequestSubject = () => {
 
   useEffect(() => {
     api
-      .getRequests({ limit: 3, sortBy: 'createdAt', sortOrder: 'DESC' })
+      .getRequests({ limit: 3, sortBy: 'createdAt', sortOrder: 'desc' })
       .then((data) => setRecentRequests(data.requests))
       .catch(() => toast('خطا در دریافت درخواست‌های اخیر', 'error'));
   }, []);
@@ -67,7 +57,11 @@ const RequestSubject = () => {
   };
 
   const removeImage = (index: number) => {
-    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+    setUploadedImages((prev) => {
+      const removed = prev[index];
+      if (removed) URL.revokeObjectURL(removed);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const handleChange = (
@@ -89,7 +83,7 @@ const RequestSubject = () => {
         description: formData.description || undefined,
       });
       toast('درخواست شما با موفقیت ثبت شد!', 'success');
-      setFormData({ title: '', category: 'tech', description: '' });
+      setFormData({ title: '', description: '' });
     } catch {
       toast('خطا در ثبت درخواست', 'error');
     } finally {
@@ -224,23 +218,7 @@ const RequestSubject = () => {
                     required
                   />
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-700">
-                    دسته‌بندی
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 focus:border-teal-300 focus:outline-none"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-gray-700">
                     توضیحات بیشتر

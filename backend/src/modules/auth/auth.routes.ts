@@ -3,6 +3,7 @@ import { authController } from './auth.controller';
 import { validate } from '../../shared/middleware/validation.middleware';
 import { registerSchema } from './dto/register.dto';
 import { loginSchema } from './dto/login.dto';
+import { refreshSchema } from './dto/refresh.dto';
 import { authGuard } from './guards/auth.guard';
 
 const authRouter = Router();
@@ -10,6 +11,6 @@ const authRouter = Router();
 authRouter.post('/register', validate(registerSchema), authController.register);
 authRouter.post('/login', validate(loginSchema), authController.login);
 authRouter.get('/profile', authGuard, authController.getProfile);
-authRouter.post('/refresh', authGuard, authController.refreshToken);
+authRouter.post('/refresh', validate(refreshSchema), authController.refreshToken);
 
 export { authRouter };

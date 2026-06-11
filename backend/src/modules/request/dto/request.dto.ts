@@ -13,5 +13,10 @@ export const requestQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
+export const updateStatusSchema = z.object({
+  status: z.enum(['open', 'fulfilled', 'closed']),
+});
+
 export type CreateRequestDto = z.infer<typeof createRequestSchema>;
 export type RequestQueryDto = z.infer<typeof requestQuerySchema>;
+export type UpdateStatusDto = z.infer<typeof updateStatusSchema>;

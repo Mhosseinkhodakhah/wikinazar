@@ -53,15 +53,15 @@ const Requests = () => {
       try {
         const params: {
           sortBy?: string;
-          sortOrder?: 'ASC' | 'DESC';
+          sortOrder?: 'asc' | 'desc';
         } = {};
 
         if (sortBy === 'top') {
           params.sortBy = 'votes';
-          params.sortOrder = 'DESC';
+          params.sortOrder = 'desc';
         } else {
           params.sortBy = 'createdAt';
-          params.sortOrder = 'DESC';
+          params.sortOrder = 'desc';
         }
 
         const data = await api.getRequests(params);
@@ -86,8 +86,11 @@ const Requests = () => {
       setRequests((prev) =>
         prev.map((r) => (r.id === id ? { ...r, votes: result.votes } : r)),
       );
-      setVoted((prev) => ({ ...prev, [id]: !prev[id] }));
-      toast(voted[id] ? 'رای شما لغو شد' : 'رای شما ثبت شد', 'success');
+      setVoted((prev) => {
+        const newVoted = !prev[id];
+        toast(newVoted ? 'رای شما ثبت شد' : 'رای شما لغو شد', 'success');
+        return { ...prev, [id]: newVoted };
+      });
     } catch {
       toast('خطا در ثبت رای', 'error');
     }

@@ -1,6 +1,6 @@
 import { UserRepository } from './repositories/user.repository';
 import { hashPassword, comparePassword } from './utils/password.utils';
-import { generateAccessToken, generateRefreshToken } from './utils/jwt.utils';
+import { generateAccessToken, generateRefreshToken, verifyToken } from './utils/jwt.utils';
 import { ConflictError, UnauthorizedError } from '../../shared/errors/http-error';
 import { type RegisterDto } from './dto/register.dto';
 import { type LoginDto } from './dto/login.dto';
@@ -107,20 +107,21 @@ export class AuthService {
     return this.mapUserToResponse(user);
   }
 
-  async refreshToken(userId: string): Promise<{ accessToken: string }> {
-    const user = await this.userRepository.findById(userId);
+  async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
+    let payload: TokenPayload;
+    try {
+      payload = verifyToken(token);
+    } catch {
+      throw new UnauthorizedError('Invalid or expired refresh token');
+    }
+
+    const user = await this.userRepository.findById(payload.sub);
     if (!user) {
       throw new UnauthorizedError('User not found');
     }
 
-    const payload: TokenPayload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
+    const tokens = this.generateTokens(user);
 
-    return {
-      accessToken: generateAccessToken(payload),
-    };
+    return tokens;
   }
 }

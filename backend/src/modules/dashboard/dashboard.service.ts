@@ -19,7 +19,7 @@ export class DashboardService {
       throw new UnauthorizedError('User not found');
     }
 
-    const [experiences, requests, ratingStats] = await Promise.all([
+    const [experiences, requests, ratingStats, totalRequestCount] = await Promise.all([
       experienceRepo.find({
         where: { authorId: userId },
         order: { createdAt: 'desc' },
@@ -37,6 +37,7 @@ export class DashboardService {
         .addSelect('COUNT(*)', 'count')
         .where('experience.authorId = :userId', { userId })
         .getRawOne(),
+      requestRepo.countBy({ requesterId: userId }),
     ]);
 
     const profile: UserResponse = {
@@ -57,7 +58,7 @@ export class DashboardService {
       profile,
       stats: {
         totalExperiences,
-        totalRequests: requests.length,
+        totalRequests: totalRequestCount,
         averageRating: Math.round(avgRating * 10) / 10,
       },
       recentExperiences: experiences.map((exp) => ({

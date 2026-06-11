@@ -494,14 +494,12 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
               <span className="text-xs font-semibold text-gray-700">
                 {user.name}
               </span>
-              {user.role === 'expert' && (
-                <Link
-                  href="/dashboard"
-                  className="mr-1 rounded-lg bg-teal-50 px-2 py-0.5 text-[10px] font-medium text-teal-700 transition-all hover:bg-teal-100"
-                >
-                  داشبورد
-                </Link>
-              )}
+              <Link
+                href="/dashboard"
+                className="mr-1 rounded-lg bg-teal-50 px-2 py-0.5 text-[10px] font-medium text-teal-700 transition-all hover:bg-teal-100"
+              >
+                داشبورد
+              </Link>
               <button
                 onClick={() => {
                   logout();
