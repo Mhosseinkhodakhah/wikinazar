@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState, type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { LoginModal } from '../components/LoginModal';
 import { useAuth } from '../utils/AuthContext';
@@ -142,18 +142,18 @@ const MobileLayout = ({ children }: Props) => {
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white shadow-lg">
         <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-1">
           {tabs.map((tab) => {
-            const isActive = tab.href
-              ? tab.href === '/'
-                ? router.pathname === '/'
-                : router.pathname.startsWith(tab.href)
-              : false;
+            const isActive = (() => {
+              if (!tab.href) return false;
+              if (tab.href === '/') return router.pathname === '/';
+              return router.pathname.startsWith(tab.href);
+            })();
 
             if (tab.onClick) {
               return (
                 <button
                   key={tab.label}
                   onClick={tab.onClick}
-                  className="flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[10px] font-medium transition-all text-gray-400 hover:text-gray-600"
+                  className="flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[10px] font-medium text-gray-400 transition-all hover:text-gray-600"
                 >
                   <tab.icon active={false} />
                   {tab.label}

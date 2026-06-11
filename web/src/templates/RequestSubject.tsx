@@ -37,6 +37,7 @@ const RequestSubject = () => {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [recentRequests, setRecentRequests] = useState<RequestDTO[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     api
@@ -101,8 +102,6 @@ const RequestSubject = () => {
     );
   }
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
   if (!user) {
     return (
       <div
@@ -126,13 +125,13 @@ const RequestSubject = () => {
         >
           ورود / ثبت‌نام
         </button>
-        <Link
-          href="/"
-          className="text-xs text-gray-500 hover:text-gray-700"
-        >
+        <Link href="/" className="text-xs text-gray-500 hover:text-gray-700">
           بازگشت به صفحه اصلی
         </Link>
-        <LoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+        <LoginModal
+          open={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
       </div>
     );
   }

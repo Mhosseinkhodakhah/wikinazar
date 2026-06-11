@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { useAuth } from '../utils/AuthContext';
 
 type Props = {
@@ -61,7 +62,12 @@ const LoginModal = ({ open, onClose }: Props) => {
     setBusy(true);
     setError(null);
     try {
-      await register(email.trim(), username.trim(), password, displayName.trim() || undefined);
+      await register(
+        email.trim(),
+        username.trim(),
+        password,
+        displayName.trim() || undefined,
+      );
       handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'خطا در ثبت‌نام');
@@ -95,7 +101,10 @@ const LoginModal = ({ open, onClose }: Props) => {
 
         <div className="mb-4 flex rounded-xl bg-gray-100 p-1">
           <button
-            onClick={() => { setTab('login'); setError(null); }}
+            onClick={() => {
+              setTab('login');
+              setError(null);
+            }}
             className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
               tab === 'login'
                 ? 'bg-white text-teal-600 shadow-sm'
@@ -105,7 +114,10 @@ const LoginModal = ({ open, onClose }: Props) => {
             ورود
           </button>
           <button
-            onClick={() => { setTab('register'); setError(null); }}
+            onClick={() => {
+              setTab('register');
+              setError(null);
+            }}
             className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
               tab === 'register'
                 ? 'bg-white text-teal-600 shadow-sm'
@@ -123,7 +135,10 @@ const LoginModal = ({ open, onClose }: Props) => {
             </label>
             <input
               value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(null); }}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(null);
+              }}
               placeholder="example@email.com"
               className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
             />
@@ -137,7 +152,10 @@ const LoginModal = ({ open, onClose }: Props) => {
                 </label>
                 <input
                   value={username}
-                  onChange={(e) => { setUsername(e.target.value); setError(null); }}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="username"
                   className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
                 />
@@ -148,7 +166,10 @@ const LoginModal = ({ open, onClose }: Props) => {
                 </label>
                 <input
                   value={displayName}
-                  onChange={(e) => { setDisplayName(e.target.value); setError(null); }}
+                  onChange={(e) => {
+                    setDisplayName(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="نام شما"
                   className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
                 />
@@ -163,7 +184,10 @@ const LoginModal = ({ open, onClose }: Props) => {
             <input
               type="password"
               value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(null); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError(null);
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   if (tab === 'login') handleLogin();
@@ -182,7 +206,10 @@ const LoginModal = ({ open, onClose }: Props) => {
             disabled={busy}
             className="w-full rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-teal-600 hover:to-cyan-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {busy ? 'لطفاً صبر کنید...' : tab === 'login' ? 'ورود' : 'ثبت‌نام'}
+            {(() => {
+              if (busy) return 'لطفاً صبر کنید...';
+              return tab === 'login' ? 'ورود' : 'ثبت‌نام';
+            })()}
           </button>
         </div>
 

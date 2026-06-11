@@ -1,7 +1,7 @@
 import '../styles/global.css';
 
-import { useCallback, useEffect, useState } from 'react';
 import type { AppProps } from 'next/app';
+import { useCallback, useEffect, useState } from 'react';
 
 import { LoginModal } from '../components/LoginModal';
 import { MobileLayout } from '../layout/MobileLayout';

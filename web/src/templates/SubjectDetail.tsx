@@ -88,6 +88,7 @@ const SubjectDetail = () => {
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     if (!subjectId) return;
@@ -253,8 +254,6 @@ const SubjectDetail = () => {
 
   const imgs = subject.images.length > 0 ? subject.images : [subject.image];
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
   if (isMobile) {
     return (
       <>
@@ -279,7 +278,10 @@ const SubjectDetail = () => {
           user={user}
           onLoginClick={() => setShowLoginModal(true)}
         />
-        <LoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+        <LoginModal
+          open={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
       </>
     );
   }
@@ -307,7 +309,10 @@ const SubjectDetail = () => {
         user={user}
         onLoginClick={() => setShowLoginModal(true)}
       />
-      <LoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <LoginModal
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </>
   );
 };

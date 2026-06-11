@@ -244,7 +244,9 @@ export const api = {
     request<void>(`/experiences/${id}`, { method: 'DELETE' }),
 
   likeExperience: (id: string) =>
-    request<{ likes: number; liked: boolean }>(`/experiences/${id}/like`, { method: 'POST' }),
+    request<{ likes: number; liked: boolean }>(`/experiences/${id}/like`, {
+      method: 'POST',
+    }),
 
   getSubjectStats: (subjectId: string) =>
     request<{ averageRating: number; totalExperiences: number }>(
@@ -281,7 +283,9 @@ export const api = {
     }),
 
   voteRequest: (id: string) =>
-    request<{ votes: number; voted: boolean }>(`/requests/${id}/vote`, { method: 'POST' }),
+    request<{ votes: number; voted: boolean }>(`/requests/${id}/vote`, {
+      method: 'POST',
+    }),
 
   updateRequestStatus: (id: string, status: string) =>
     request<RequestDTO>(`/requests/${id}/status`, {

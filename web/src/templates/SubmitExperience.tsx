@@ -47,6 +47,7 @@ const SubmitExperience = () => {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     api
@@ -141,8 +142,6 @@ const SubmitExperience = () => {
     );
   }
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
   if (!user) {
     return (
       <div
@@ -166,13 +165,13 @@ const SubmitExperience = () => {
         >
           ورود / ثبت‌نام
         </button>
-        <Link
-          href="/"
-          className="text-xs text-gray-500 hover:text-gray-700"
-        >
+        <Link href="/" className="text-xs text-gray-500 hover:text-gray-700">
           بازگشت به صفحه اصلی
         </Link>
-        <LoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+        <LoginModal
+          open={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
       </div>
     );
   }
