@@ -7,8 +7,6 @@ import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 import { useToast } from '../utils/ToastContext';
 
-
-
 function formatRelativeTime(dateString: string): string {
   const now = new Date();
   const date = new Date(dateString);

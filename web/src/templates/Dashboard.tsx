@@ -13,6 +13,18 @@ import { useAuth } from '../utils/AuthContext';
 import { useToast } from '../utils/ToastContext';
 import { useMobile } from '../utils/useMobile';
 
+function getStatusLabel(status: string): string {
+  if (status === 'open') return 'در انتظار';
+  if (status === 'fulfilled') return 'پاسخ داده شده';
+  return 'بسته شده';
+}
+
+function getStatusClass(status: string): string {
+  return status === 'open'
+    ? 'bg-amber-50 text-amber-700'
+    : 'bg-emerald-50 text-emerald-700';
+}
+
 function formatDate(dateStr: string): string {
   const now = Date.now();
   const diff = now - new Date(dateStr).getTime();
@@ -295,11 +307,11 @@ const DesktopDashboardView = ({
                     {req.description}
                   </p>
                   <div className="mt-2 flex items-center gap-3">
-                      <span
-                        className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${req.status === 'open' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}
-                      >
-                        {req.status === 'open' ? 'در انتظار' : req.status === 'fulfilled' ? 'پاسخ داده شده' : 'بسته شده'}
-                      </span>
+                    <span
+                      className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${getStatusClass(req.status)}`}
+                    >
+                      {getStatusLabel(req.status)}
+                    </span>
                     <span className="text-[10px] text-gray-500">
                       {req.date}
                     </span>
@@ -448,11 +460,11 @@ const MobileDashboardView = ({
                 {req.description}
               </p>
               <div className="mt-2 flex items-center gap-3">
-                  <span
-                    className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${req.status === 'open' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}
-                  >
-                    {req.status === 'open' ? 'در انتظار' : req.status === 'fulfilled' ? 'پاسخ داده شده' : 'بسته شده'}
-                  </span>
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${getStatusClass(req.status)}`}
+                >
+                  {getStatusLabel(req.status)}
+                </span>
                 <span className="text-[10px] text-gray-500">{req.date}</span>
               </div>
             </div>
