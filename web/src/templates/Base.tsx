@@ -15,23 +15,6 @@ import { useMobile } from '../utils/useMobile';
 import { Footer } from './Footer';
 import { MobileFeed } from './MobileFeed';
 
-const categories = [
-  { id: 'all', name: 'همه', icon: '🌟' },
-  { id: 'tech', name: 'فناوری', icon: '💻' },
-  { id: 'travel', name: 'سفر', icon: '✈️' },
-  { id: 'food', name: 'غذا', icon: '🍽️' },
-  { id: 'education', name: 'آموزش', icon: '📚' },
-  { id: 'health', name: 'سلامت', icon: '💪' },
-  { id: 'sports', name: 'ورزش', icon: '🏋️' },
-  { id: 'beauty', name: 'زیبایی', icon: '💄' },
-  { id: 'automotive', name: 'خودرو', icon: '🚗' },
-  { id: 'music', name: 'موسیقی', icon: '🎵' },
-  { id: 'gaming', name: 'بازی', icon: '🎮' },
-  { id: 'fashion', name: 'مد و پوشاک', icon: '👗' },
-  { id: 'shopping', name: 'خرید', icon: '🛍️' },
-  { id: 'services', name: 'خدمات', icon: '🔧' },
-];
-
 const badges = [
   {
     min: 100,
@@ -221,6 +204,9 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   const [touchStart, setTouchStart] = useState(0);
   const [visibleCount, setVisibleCount] = useState(6);
 
+  const [categories, setCategories] = useState<
+    { id: string; name: string; icon: string }[]
+  >([]);
   const [subjects, setSubjects] = useState<MappedSubject[]>([]);
   const [experiences, setExperiences] = useState<MappedExperience[]>([]);
   const [requests, setRequests] = useState<MappedRequest[]>([]);
@@ -292,7 +278,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
     id: r.id,
     title: r.title,
     description: r.description || '',
-    category: 'other',
+    category: r.category || 'other',
     requestedBy: r.requester?.displayName || r.requester?.username || 'کاربر',
     date: formatRelativeTime(r.createdAt),
     votes: r.votes,
@@ -325,11 +311,20 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subjectsRes, experiencesRes, requestsRes] = await Promise.all([
-          api.getSubjects({ limit: 50 }),
-          api.getExperiences({ limit: 20 }),
-          api.getRequests({ limit: 10 }),
-        ]);
+        const [subjectsRes, experiencesRes, requestsRes, categoriesRes] =
+          await Promise.all([
+            api.getSubjects({ limit: 50 }),
+            api.getExperiences({ limit: 20 }),
+            api.getRequests({ limit: 10 }),
+            api.getCategories(),
+          ]);
+        setCategories(
+          categoriesRes.map((c) => ({
+            id: c.slug,
+            name: c.name,
+            icon: c.icon,
+          })),
+        );
 
         const mappedSubjects = subjectsRes.subjects.map(mapSubject);
         const mappedExperiences = experiencesRes.experiences.map(mapExperience);
@@ -743,24 +738,32 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
               ←
             </span>
           </Link>
-          <button
-            onClick={() => shareContent(subject.name)}
-            className="rounded-lg border border-gray-300 p-1 text-gray-500 transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-500 md:p-1.5"
-          >
-            <svg
-              className="size-3 md:size-3.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="flex items-center gap-1">
+            <Link
+              href={`/submit?subjectId=${subject.id}`}
+              className="rounded-lg bg-gradient-to-r from-teal-500 to-cyan-500 px-2 py-1 text-[9px] font-semibold text-white transition-all hover:from-teal-600 hover:to-cyan-600 md:px-2.5 md:text-[10px]"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-              />
-            </svg>
-          </button>
+              ثبت تجربه
+            </Link>
+            <button
+              onClick={() => shareContent(subject.name)}
+              className="rounded-lg border border-gray-300 p-1 text-gray-500 transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-500 md:p-1.5"
+            >
+              <svg
+                className="size-3 md:size-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

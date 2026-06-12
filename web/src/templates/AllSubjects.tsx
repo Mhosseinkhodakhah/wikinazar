@@ -6,41 +6,6 @@ import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 import { useToast } from '../utils/ToastContext';
 
-const categories = [
-  { id: 'all', name: 'همه', icon: '🌟' },
-  { id: 'tech', name: 'فناوری', icon: '💻' },
-  { id: 'travel', name: 'سفر', icon: '✈️' },
-  { id: 'food', name: 'غذا', icon: '🍽️' },
-  { id: 'education', name: 'آموزش', icon: '📚' },
-  { id: 'health', name: 'سلامت', icon: '💪' },
-  { id: 'sports', name: 'ورزش', icon: '🏋️' },
-  { id: 'beauty', name: 'زیبایی', icon: '💄' },
-  { id: 'automotive', name: 'خودرو', icon: '🚗' },
-  { id: 'music', name: 'موسیقی', icon: '🎵' },
-  { id: 'gaming', name: 'بازی', icon: '🎮' },
-  { id: 'fashion', name: 'مد و پوشاک', icon: '👗' },
-  { id: 'entertainment', name: 'سرگرمی', icon: '🎬' },
-  { id: 'shopping', name: 'خرید', icon: '🛍️' },
-  { id: 'services', name: 'خدمات', icon: '🔧' },
-];
-
-const categoryNames: Record<string, string> = {
-  tech: 'فناوری',
-  travel: 'سفر',
-  food: 'غذا',
-  education: 'آموزش',
-  health: 'سلامت',
-  sports: 'ورزش',
-  beauty: 'زیبایی',
-  automotive: 'خودرو',
-  music: 'موسیقی',
-  gaming: 'بازی',
-  fashion: 'مد و پوشاک',
-  entertainment: 'سرگرمی',
-  shopping: 'خرید',
-  services: 'خدمات',
-};
-
 function toPersianNum(num: number): string {
   const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
   return String(num).replace(
@@ -87,6 +52,9 @@ const AllSubjects = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [categories, setCategories] = useState<
+    { id: string; name: string; icon: string }[]
+  >([]);
   const [subjects, setSubjects] = useState<
     {
       id: string;
@@ -116,10 +84,18 @@ const AllSubjects = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subjectsRes, experiencesRes] = await Promise.all([
+        const [subjectsRes, experiencesRes, categoriesRes] = await Promise.all([
           api.getSubjects({ limit: 100 }),
           api.getExperiences({ limit: 100 }),
+          api.getCategories(),
         ]);
+        setCategories(
+          categoriesRes.map((c) => ({
+            id: c.slug,
+            name: c.name,
+            icon: c.icon,
+          })),
+        );
         setSubjects(
           subjectsRes.subjects.map((s) => ({
             id: s.id,
@@ -349,7 +325,8 @@ const AllSubjects = () => {
                         {subject.name}
                       </h3>
                       <span className="shrink-0 rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700">
-                        {categoryNames[subject.type] || subject.type}
+                        {categories.find((c) => c.id === subject.type)?.name ||
+                          subject.type}
                       </span>
                     </div>
                     <p className="mt-0.5 text-sm text-gray-500">
@@ -381,19 +358,27 @@ const AllSubjects = () => {
                       </div>
                     </div>
                   </div>
-                  <svg
-                    className={`size-6 shrink-0 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Link
+                      href={`/submit?subjectId=${subject.id}`}
+                      className="rounded-lg bg-gradient-to-r from-teal-500 to-cyan-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm transition-all hover:from-teal-600 hover:to-cyan-600"
+                    >
+                      ثبت تجربه
+                    </Link>
+                    <svg
+                      className={`size-6 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
                 </button>
 
                 {/* Expanded Experiences */}

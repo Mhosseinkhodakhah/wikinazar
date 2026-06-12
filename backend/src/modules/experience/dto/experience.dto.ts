@@ -4,6 +4,7 @@ export const createExperienceSchema = z.object({
   content: z.string().min(10, 'Content must be at least 10 characters').max(5000),
   rating: z.number().int().min(1).max(5),
   subjectId: z.string().uuid('Invalid subject ID'),
+  tags: z.array(z.string().max(30)).max(10).optional(),
 });
 
 export const updateExperienceSchema = z.object({

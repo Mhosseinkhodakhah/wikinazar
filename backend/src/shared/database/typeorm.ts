@@ -19,8 +19,8 @@ export function getDataSource(): DataSource {
       type: 'postgres',
       url: env.database.url,
       entities: [User, Subject, Experience, ExperienceLike, Request, RequestVote, Admin],
-      synchronize: env.nodeEnv !== 'production',
-      logging: env.nodeEnv !== 'production',
+      synchronize: env.nodeEnv !== '',
+      logging: env.nodeEnv !== '',
     });
   }
   return dataSource;

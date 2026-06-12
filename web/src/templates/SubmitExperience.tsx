@@ -1,32 +1,25 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { LoginModal } from '../components/LoginModal';
 import { Meta } from '../layout/Meta';
-import type { SubjectDTO } from '../utils/api';
-import { api } from '../utils/api';
+import { api, type SubjectDTO } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 import { StarRating } from '../utils/StarRating';
 import { useToast } from '../utils/ToastContext';
-
-const categoryOptions = [
-  'فناوری',
-  'سفر',
-  'غذا',
-  'آموزش',
-  'سلامت',
-  'سرگرمی',
-  'خرید',
-  'خدمات',
-];
+import { useDebounce } from '../utils/useDebounce';
 
 const SubmitExperience = () => {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  const [subjects, setSubjects] = useState<SubjectDTO[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    [],
+  );
+  const [searchResults, setSearchResults] = useState<SubjectDTO[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState(
     () => (router.query.subject as string) || '',
   );
@@ -35,6 +28,9 @@ const SubmitExperience = () => {
     null,
   );
   const [showNewSubject, setShowNewSubject] = useState(false);
+  const [lockedSubject, setLockedSubject] = useState(false);
+
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   const [newSubject, setNewSubject] = useState({
     title: '',
@@ -43,40 +39,79 @@ const SubmitExperience = () => {
   });
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
-  const [tags, setTags] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
-    api
-      .getSubjects({ limit: 50 })
-      .then((res) => {
-        setSubjects(res.subjects);
-      })
-      .catch(() => {
-        toast('بارگذاری موضوعات با مشکل مواجه شد', 'error');
-      });
-  }, []);
+    const subjectIdParam = router.query.subjectId as string;
+    const subjectParam = router.query.subject as string;
 
-  const filteredSubjects = useMemo(
-    () =>
-      subjects
-        .filter(
-          (s) =>
-            s.title.includes(searchQuery) ||
-            s.slug.toLowerCase().includes(searchQuery.toLowerCase()),
-        )
-        .slice(0, 5),
-    [searchQuery, subjects],
-  );
+    if (subjectIdParam) {
+      setSearchLoading(true);
+      api
+        .getSubjectById(subjectIdParam)
+        .then((found) => {
+          setSelectedSubject(found);
+          setSearchQuery(found.title);
+          setLockedSubject(true);
+        })
+        .catch(() => {})
+        .finally(() => setSearchLoading(false));
+    } else if (subjectParam) {
+      setSearchQuery(subjectParam);
+    }
+  }, [router.query.subjectId, router.query.subject]);
+
+  useEffect(() => {
+    if (!debouncedSearch.trim() || lockedSubject) {
+      setSearchResults([]);
+      return undefined;
+    }
+    setSearchLoading(true);
+    api
+      .getSubjects({ search: debouncedSearch, limit: 5 })
+      .then((res) => setSearchResults(res.subjects))
+      .catch(() => setSearchResults([]))
+      .finally(() => setSearchLoading(false));
+    return undefined;
+  }, [debouncedSearch, lockedSubject]);
+
+  useEffect(() => {
+    api
+      .getCategories()
+      .then((res) =>
+        setCategories(res.map((c) => ({ id: c.slug, name: c.name }))),
+      )
+      .catch(() => {});
+  }, []);
 
   const handleSelectSubject = (subject: SubjectDTO) => {
     setSelectedSubject(subject);
     setSearchQuery(subject.title);
     setShowDropdown(false);
     setShowNewSubject(false);
+  };
+
+  const addTag = () => {
+    const t = tagInput.trim();
+    if (t && !tags.includes(t)) {
+      setTags([...tags, t]);
+    }
+    setTagInput('');
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      addTag();
+    }
+    if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
+      setTags(tags.slice(0, -1));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,6 +152,7 @@ const SubmitExperience = () => {
         content: comment.trim(),
         rating,
         subjectId,
+        tags: tags.length > 0 ? tags : undefined,
       });
 
       toast('تجربه شما با موفقیت ثبت شد!', 'success');
@@ -254,77 +290,103 @@ const SubmitExperience = () => {
                     انتخاب موضوع
                   </label>
                   <div className="relative">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setSelectedSubject(null);
-                        setShowDropdown(true);
-                        setShowNewSubject(false);
-                      }}
-                      onFocus={() => setShowDropdown(true)}
-                      placeholder="نام موضوع را جستجو کنید..."
-                      className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:shadow-sm focus:outline-none"
-                    />
-                    {showDropdown && searchQuery && !selectedSubject && (
-                      <div className="absolute z-20 mt-1 w-full rounded-xl border border-gray-300 bg-white p-1.5 shadow-lg">
-                        {filteredSubjects.length > 0 ? (
-                          filteredSubjects.map((s) => (
-                            <button
-                              key={s.id}
-                              type="button"
-                              onClick={() => handleSelectSubject(s)}
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-700 transition-all hover:bg-teal-50"
-                            >
-                              <span className="rounded bg-teal-50 px-1.5 py-0.5 text-[9px] text-teal-600">
-                                {s.category}
-                              </span>
-                              {s.title}
-                            </button>
-                          ))
-                        ) : (
-                          <p className="px-3 py-2 text-xs text-gray-500">
-                            نتیجه‌ای یافت نشد
-                          </p>
-                        )}
-                        <div className="border-t border-gray-200 pt-1">
-                          <label className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-600 transition-all hover:bg-teal-50">
-                            <input
-                              type="checkbox"
-                              checked={showNewSubject}
-                              onChange={() => {
-                                setShowNewSubject((p) => !p);
-                                setSelectedSubject(null);
-                                setSearchQuery('');
-                                setShowDropdown(false);
-                              }}
-                              className="size-3.5 rounded border-gray-300 text-teal-600 accent-teal-500"
-                            />
-                            موضوع من در لیست نیست
-                          </label>
-                        </div>
-                      </div>
-                    )}
-                    {selectedSubject && (
-                      <div className="mt-1.5 flex items-center gap-2 rounded-lg bg-teal-50 px-3 py-2">
-                        <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-medium text-teal-600">
+                    {lockedSubject && selectedSubject ? (
+                      <div className="flex items-center gap-2 rounded-xl border border-gray-300 bg-gray-100 px-4 py-3">
+                        <span className="rounded bg-teal-50 px-1.5 py-0.5 text-[10px] font-medium text-teal-600">
                           {selectedSubject.category}
                         </span>
-                        <span className="text-xs font-medium text-gray-700">
+                        <span className="text-sm font-medium text-gray-700">
                           {selectedSubject.title}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedSubject(null);
-                            setSearchQuery('');
-                          }}
-                          className="mr-auto text-gray-500 hover:text-red-500"
-                        >
-                          ✕
-                        </button>
+                        <span className="mr-auto text-[10px] text-gray-400">
+                          (ثبت تجربه برای این موضوع)
+                        </span>
                       </div>
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setSelectedSubject(null);
+                            setShowDropdown(true);
+                            setShowNewSubject(false);
+                          }}
+                          onFocus={() => setShowDropdown(true)}
+                          placeholder="نام موضوع را جستجو کنید..."
+                          className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:shadow-sm focus:outline-none"
+                        />
+                        {showDropdown && searchQuery && !selectedSubject && (
+                          <div className="absolute z-20 mt-1 w-full rounded-xl border border-gray-300 bg-white p-1.5 shadow-lg">
+                            {(() => {
+                              if (searchLoading) {
+                                return (
+                                  <div className="flex items-center justify-center py-3">
+                                    <div className="size-4 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+                                  </div>
+                                );
+                              }
+                              if (searchResults.length > 0) {
+                                return searchResults.map((s) => (
+                                  <button
+                                    key={s.id}
+                                    type="button"
+                                    onClick={() => handleSelectSubject(s)}
+                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-700 transition-all hover:bg-teal-50"
+                                  >
+                                    <span className="rounded bg-teal-50 px-1.5 py-0.5 text-[9px] text-teal-600">
+                                      {s.category}
+                                    </span>
+                                    {s.title}
+                                  </button>
+                                ));
+                              }
+                              return (
+                                <p className="px-3 py-2 text-xs text-gray-500">
+                                  نتیجه‌ای یافت نشد
+                                </p>
+                              );
+                            })()}
+                            <div className="border-t border-gray-200 pt-1">
+                              <label className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-600 transition-all hover:bg-teal-50">
+                                <input
+                                  type="checkbox"
+                                  checked={showNewSubject}
+                                  onChange={() => {
+                                    setShowNewSubject((p) => !p);
+                                    setSelectedSubject(null);
+                                    setSearchQuery('');
+                                    setShowDropdown(false);
+                                  }}
+                                  className="size-3.5 rounded border-gray-300 text-teal-600 accent-teal-500"
+                                />
+                                موضوع من در لیست نیست
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                        {selectedSubject && (
+                          <div className="mt-1.5 flex items-center gap-2 rounded-lg bg-teal-50 px-3 py-2">
+                            <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-medium text-teal-600">
+                              {selectedSubject.category}
+                            </span>
+                            <span className="text-xs font-medium text-gray-700">
+                              {selectedSubject.title}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedSubject(null);
+                                setSearchQuery('');
+                              }}
+                              className="mr-auto text-gray-500 hover:text-red-500"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                   {errors.subject && (
@@ -376,9 +438,9 @@ const SubmitExperience = () => {
                         }
                         className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-teal-300 focus:outline-none"
                       >
-                        {categoryOptions.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
                           </option>
                         ))}
                       </select>
@@ -499,15 +561,41 @@ const SubmitExperience = () => {
                   </div>
                   <div>
                     <label className="mb-1.5 block text-sm font-semibold text-gray-800">
-                      برچسب‌ها (اختیاری، با کاما جدا کنید)
+                      برچسب‌ها (اختیاری)
                     </label>
-                    <input
-                      type="text"
-                      value={tags}
-                      onChange={(e) => setTags(e.target.value)}
-                      placeholder="مثال: مفید, جذاب, کاربردی"
-                      className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
-                    />
+                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-gray-300 bg-gray-50 px-3 py-2 focus-within:border-teal-300 focus-within:shadow-sm">
+                      {tags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="flex items-center gap-1 rounded-lg bg-teal-100 px-2 py-1 text-xs font-medium text-teal-700"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setTags(tags.filter((_, j) => j !== i))
+                            }
+                            className="text-teal-500 hover:text-teal-700"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={handleTagKeyDown}
+                        onBlur={addTag}
+                        placeholder={
+                          tags.length === 0 ? 'مثال: مفید جذاب کاربردی' : ''
+                        }
+                        className="min-w-[80px] flex-1 bg-transparent py-1 text-sm text-gray-700 placeholder:text-gray-500 focus:outline-none"
+                      />
+                    </div>
+                    <p className="mt-1 text-[10px] text-gray-500">
+                      برای جدا کردن برچسب‌ها از Space یا Enter استفاده کنید
+                    </p>
                   </div>
                 </div>
 

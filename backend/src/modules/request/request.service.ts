@@ -18,6 +18,7 @@ export class RequestService {
       id: req.id,
       title: req.title,
       description: req.description,
+      category: req.category ?? null,
       votes: req.votes,
       status: req.status,
       requesterId: req.requesterId,
@@ -50,6 +51,7 @@ export class RequestService {
       skip: (query.page - 1) * query.limit,
       take: query.limit,
       status: query.status,
+      category: query.category,
       orderBy: { [query.sortBy]: query.sortOrder },
     });
 
@@ -69,6 +71,7 @@ export class RequestService {
     const request = await this.repository.create({
       title: dto.title,
       description: dto.description,
+      category: dto.category,
       requesterId,
     });
 

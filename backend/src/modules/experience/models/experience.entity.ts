@@ -24,6 +24,9 @@ export class Experience {
   @Column({ default: 0 })
   likes!: number;
 
+  @Column('simple-array', { nullable: true })
+  tags!: string[];
+
   @Column({ name: 'author_id' })
   authorId!: string;
 

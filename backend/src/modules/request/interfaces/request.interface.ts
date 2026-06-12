@@ -2,6 +2,7 @@ export interface RequestResponse {
   id: string;
   title: string;
   description: string | null;
+  category: string | null;
   votes: number;
   status: string;
   requesterId: string;

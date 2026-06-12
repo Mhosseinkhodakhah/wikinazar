@@ -22,6 +22,7 @@ export class ExperienceService {
       content: exp.content,
       rating: exp.rating,
       likes: exp.likes,
+      tags: exp.tags ?? [],
       authorId: exp.authorId,
       subjectId: exp.subjectId,
       createdAt: exp.createdAt,
@@ -97,6 +98,7 @@ export class ExperienceService {
     const experience = await this.repository.create({
       content: dto.content,
       rating: dto.rating,
+      tags: dto.tags,
       authorId,
       subjectId: dto.subjectId,
     });

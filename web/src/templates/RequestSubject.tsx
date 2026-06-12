@@ -33,11 +33,24 @@ const RequestSubject = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    category: '',
   });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [recentRequests, setRecentRequests] = useState<RequestDTO[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    [],
+  );
+
+  useEffect(() => {
+    api
+      .getCategories()
+      .then((res) =>
+        setCategories(res.map((c) => ({ id: c.slug, name: c.name }))),
+      )
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     api
@@ -81,9 +94,10 @@ const RequestSubject = () => {
       await api.createRequest({
         title: formData.title,
         description: formData.description || undefined,
+        category: formData.category || undefined,
       });
       toast('درخواست شما با موفقیت ثبت شد!', 'success');
-      setFormData({ title: '', description: '' });
+      setFormData({ title: '', description: '', category: '' });
     } catch {
       toast('خطا در ثبت درخواست', 'error');
     } finally {
@@ -238,6 +252,25 @@ const RequestSubject = () => {
                     rows={3}
                     className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:shadow-sm focus:outline-none"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                    دسته‌بندی
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 focus:border-teal-300 focus:shadow-sm focus:outline-none"
+                  >
+                    <option value="">بدون دسته‌بندی</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 {/* Image Upload */}
                 <div>

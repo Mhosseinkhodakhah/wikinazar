@@ -2,22 +2,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { Meta } from '../layout/Meta';
-import type { RequestDTO } from '../utils/api';
+import type { CategoryDTO, RequestDTO } from '../utils/api';
 import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 import { useToast } from '../utils/ToastContext';
-
-const categories = [
-  { id: 'all', name: 'همه', icon: '🌟' },
-  { id: 'tech', name: 'فناوری', icon: '💻' },
-  { id: 'travel', name: 'سفر', icon: '✈️' },
-  { id: 'food', name: 'غذا', icon: '🍽️' },
-  { id: 'education', name: 'آموزش', icon: '📚' },
-  { id: 'health', name: 'سلامت', icon: '💪' },
-  { id: 'entertainment', name: 'سرگرمی', icon: '🎬' },
-  { id: 'shopping', name: 'خرید', icon: '🛍️' },
-  { id: 'services', name: 'خدمات', icon: '🔧' },
-];
 
 function formatRelativeTime(dateString: string): string {
   const now = Date.now();
@@ -45,6 +33,9 @@ const Requests = () => {
   const [sortBy, setSortBy] = useState<'newest' | 'top'>('newest');
   const [voted, setVoted] = useState<Record<string, boolean>>({});
   const [requests, setRequests] = useState<RequestDTO[]>([]);
+  const [categories, setCategories] = useState<
+    { id: string; name: string; icon: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,7 +45,12 @@ const Requests = () => {
         const params: {
           sortBy?: string;
           sortOrder?: 'asc' | 'desc';
+          category?: string;
         } = {};
+
+        if (activeCategory !== 'all') {
+          params.category = activeCategory;
+        }
 
         if (sortBy === 'top') {
           params.sortBy = 'votes';
@@ -64,8 +60,18 @@ const Requests = () => {
           params.sortOrder = 'desc';
         }
 
-        const data = await api.getRequests(params);
+        const [data, categoriesRes] = await Promise.all([
+          api.getRequests(params),
+          api.getCategories(),
+        ]);
         setRequests(data.requests);
+        setCategories(
+          categoriesRes.map((c: CategoryDTO) => ({
+            id: c.slug,
+            name: c.name,
+            icon: c.icon,
+          })),
+        );
       } catch {
         toast('خطا در دریافت درخواست‌ها', 'error');
       } finally {
@@ -265,6 +271,12 @@ const Requests = () => {
                   <h3 className="mb-1.5 text-sm font-bold text-gray-800 transition-colors group-hover:text-teal-600 md:text-base">
                     {req.title}
                   </h3>
+                  {req.category && (
+                    <span className="mb-2 inline-block rounded-md bg-teal-50 px-2 py-0.5 text-[10px] font-medium text-teal-600">
+                      {categories.find((c) => c.id === req.category)?.name ||
+                        req.category}
+                    </span>
+                  )}
 
                   {/* Description */}
                   <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-gray-600 md:text-sm">

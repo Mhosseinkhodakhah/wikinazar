@@ -3,6 +3,7 @@ export interface ExperienceResponse {
   content: string;
   rating: number;
   likes: number;
+  tags: string[];
   authorId: string;
   subjectId: string;
   createdAt: Date;

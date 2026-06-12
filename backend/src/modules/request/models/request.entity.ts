@@ -20,6 +20,9 @@ export class Request {
   @Column({ type: 'varchar', nullable: true })
   description!: string | null;
 
+  @Column({ nullable: true })
+  category!: string;
+
   @Column({ default: 0 })
   votes!: number;
 

@@ -2,23 +2,13 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 import { LoginModal } from '../components/LoginModal';
-import { api, type ExperienceDTO, type SubjectDTO } from '../utils/api';
+import {
+  api,
+  type CategoryDTO,
+  type ExperienceDTO,
+  type SubjectDTO,
+} from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
-
-const categories = [
-  { id: 'all', name: 'همه', icon: '🌟' },
-  { id: 'tech', name: 'فناوری', icon: '💻' },
-  { id: 'travel', name: 'سفر', icon: '✈️' },
-  { id: 'food', name: 'غذا', icon: '🍽️' },
-  { id: 'education', name: 'آموزش', icon: '📚' },
-  { id: 'health', name: 'سلامت', icon: '💪' },
-  { id: 'sports', name: 'ورزش', icon: '🏋️' },
-  { id: 'beauty', name: 'زیبایی', icon: '💄' },
-  { id: 'music', name: 'موسیقی', icon: '🎵' },
-  { id: 'gaming', name: 'بازی', icon: '🎮' },
-  { id: 'shopping', name: 'فروشگاه', icon: '🛍️' },
-  { id: 'services', name: 'خدمات', icon: '🔧' },
-];
 
 function formatRelativeTime(iso: string): string {
   const now = Date.now();
@@ -76,16 +66,27 @@ const MobileFeed = () => {
   const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<MappedSubject[]>([]);
   const [experiences, setExperiences] = useState<MappedExperience[]>([]);
+  const [categories, setCategories] = useState<
+    { id: string; name: string; icon: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subjectsRes, experiencesRes] = await Promise.all([
+        const [subjectsRes, experiencesRes, categoriesRes] = await Promise.all([
           api.getSubjects({ limit: 50 }),
           api.getExperiences({ limit: 50 }),
+          api.getCategories(),
         ]);
+        setCategories(
+          categoriesRes.map((c: CategoryDTO) => ({
+            id: c.slug,
+            name: c.name,
+            icon: c.icon,
+          })),
+        );
         setSubjects(
           subjectsRes.subjects.map((s: SubjectDTO) => ({
             id: s.id,

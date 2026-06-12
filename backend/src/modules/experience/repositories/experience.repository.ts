@@ -50,6 +50,7 @@ export class ExperienceRepository {
   async create(data: {
     content: string;
     rating: number;
+    tags?: string[];
     authorId: string;
     subjectId: string;
   }): Promise<Experience> {

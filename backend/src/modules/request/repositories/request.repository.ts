@@ -20,10 +20,12 @@ export class RequestRepository {
     skip: number;
     take: number;
     status?: string;
+    category?: string;
     orderBy: Record<string, 'asc' | 'desc'>;
   }): Promise<{ requests: Request[]; total: number }> {
     const where: Record<string, unknown> = {};
     if (params.status) where.status = params.status;
+    if (params.category) where.category = params.category;
 
     const [requests, total] = await this.repo.findAndCount({
       where,
@@ -39,6 +41,7 @@ export class RequestRepository {
   async create(data: {
     title: string;
     description?: string;
+    category?: string;
     requesterId: string;
   }): Promise<Request> {
     const request = this.repo.create(data);

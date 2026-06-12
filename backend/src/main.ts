@@ -5,6 +5,7 @@ import { getRedis, disconnectRedis } from './shared/redis/redis.client';
 import { disconnectKafka } from './shared/kafka/kafka.client';
 import { disconnectDatabase, initializeDatabase } from './shared/database/typeorm';
 import { AdminService } from './modules/admin/admin.service';
+import { CategoryRepository } from './modules/subject/repositories/category.repository';
 
 async function main(): Promise<void> {
   const app = createApp();
@@ -23,6 +24,35 @@ async function main(): Promise<void> {
     await adminService.seedSuperAdmin();
   } catch (error) {
     logger.error('Failed to seed superadmin', error as Error);
+  }
+
+  // Seed default categories if none exist
+  try {
+    const categoryRepo = new CategoryRepository();
+    const count = await categoryRepo.count();
+    if (count === 0) {
+      const defaultCategories = [
+        { slug: 'tech', name: 'فناوری', icon: '💻' },
+        { slug: 'travel', name: 'سفر', icon: '✈️' },
+        { slug: 'food', name: 'غذا', icon: '🍽️' },
+        { slug: 'education', name: 'آموزش', icon: '📚' },
+        { slug: 'health', name: 'سلامت', icon: '💪' },
+        { slug: 'sports', name: 'ورزش', icon: '🏋️' },
+        { slug: 'beauty', name: 'زیبایی', icon: '💄' },
+        { slug: 'automotive', name: 'خودرو', icon: '🚗' },
+        { slug: 'music', name: 'موسیقی', icon: '🎵' },
+        { slug: 'gaming', name: 'بازی', icon: '🎮' },
+        { slug: 'fashion', name: 'مد و پوشاک', icon: '👗' },
+        { slug: 'shopping', name: 'خرید', icon: '🛍️' },
+        { slug: 'services', name: 'خدمات', icon: '🔧' },
+      ];
+      for (const cat of defaultCategories) {
+        await categoryRepo.create(cat);
+      }
+      logger.info(`Seeded ${defaultCategories.length} default categories`);
+    }
+  } catch (error) {
+    logger.error('Failed to seed categories', error as Error);
   }
 
   // Initialize Redis connection

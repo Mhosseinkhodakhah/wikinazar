@@ -228,6 +228,7 @@ export const api = {
     content: string;
     rating: number;
     subjectId: string;
+    tags?: string[];
   }) =>
     request<ExperienceDTO>('/experiences', {
       method: 'POST',
@@ -258,6 +259,7 @@ export const api = {
     page?: number;
     limit?: number;
     status?: string;
+    category?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   }) => {
@@ -265,6 +267,7 @@ export const api = {
     if (params?.page) searchParams.set('page', String(params.page));
     if (params?.limit) searchParams.set('limit', String(params.limit));
     if (params?.status) searchParams.set('status', params.status);
+    if (params?.category) searchParams.set('category', params.category);
     if (params?.sortBy) searchParams.set('sortBy', params.sortBy);
     if (params?.sortOrder) searchParams.set('sortOrder', params.sortOrder);
     const qs = searchParams.toString();
@@ -276,7 +279,11 @@ export const api = {
     }>(`/requests${qs ? `?${qs}` : ''}`);
   },
 
-  createRequest: (data: { title: string; description?: string }) =>
+  createRequest: (data: {
+    title: string;
+    description?: string;
+    category?: string;
+  }) =>
     request<RequestDTO>('/requests', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -294,6 +301,8 @@ export const api = {
     }),
 
   // Dashboard
+  getCategories: () => request<CategoryDTO[]>('/categories'),
+
   getDashboard: (limit?: number) =>
     request<DashboardDTO>(`/dashboard${limit ? `?limit=${limit}` : ''}`),
 };
@@ -327,6 +336,7 @@ export interface ExperienceDTO {
   content: string;
   rating: number;
   likes: number;
+  tags: string[];
   authorId: string;
   subjectId: string;
   createdAt: string;
@@ -348,6 +358,7 @@ export interface RequestDTO {
   id: string;
   title: string;
   description: string | null;
+  category: string | null;
   votes: number;
   status: string;
   requesterId: string;
@@ -358,6 +369,13 @@ export interface RequestDTO {
     username: string;
     displayName: string;
   };
+}
+
+export interface CategoryDTO {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string;
 }
 
 export interface DashboardDTO {
