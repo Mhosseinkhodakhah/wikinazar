@@ -12,6 +12,7 @@ import { subjectModule } from './modules/subject/subject.module';
 import { experienceModule } from './modules/experience/experience.module';
 import { requestModule } from './modules/request/request.module';
 import { dashboardModule } from './modules/dashboard/dashboard.module';
+import { adminModule } from './modules/admin/admin.module';
 
 export function createApp(): Express {
   const app = express();
@@ -63,6 +64,7 @@ export function createApp(): Express {
   apiRouter.use(experienceModule);
   apiRouter.use(requestModule);
   apiRouter.use(dashboardModule);
+  apiRouter.use(adminModule);
 
   app.use('/api/v1', apiRouter);
 

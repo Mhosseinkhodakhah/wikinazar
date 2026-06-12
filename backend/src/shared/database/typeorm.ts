@@ -9,6 +9,7 @@ import { Experience } from '../../modules/experience/models/experience.entity';
 import { ExperienceLike } from '../../modules/experience/models/experience-like.entity';
 import { Request } from '../../modules/request/models/request.entity';
 import { RequestVote } from '../../modules/request/models/request-vote.entity';
+import { Admin } from '../../modules/admin/models/admin.entity';
 
 let dataSource: DataSource;
 
@@ -17,7 +18,7 @@ export function getDataSource(): DataSource {
     dataSource = new DataSource({
       type: 'postgres',
       url: env.database.url,
-      entities: [User, Subject, Experience, ExperienceLike, Request, RequestVote],
+      entities: [User, Subject, Experience, ExperienceLike, Request, RequestVote, Admin],
       synchronize: env.nodeEnv !== 'production',
       logging: env.nodeEnv !== 'production',
     });

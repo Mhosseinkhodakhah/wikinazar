@@ -4,6 +4,7 @@ import { logger } from './shared/logger/logger';
 import { getRedis, disconnectRedis } from './shared/redis/redis.client';
 import { disconnectKafka } from './shared/kafka/kafka.client';
 import { disconnectDatabase, initializeDatabase } from './shared/database/typeorm';
+import { AdminService } from './modules/admin/admin.service';
 
 async function main(): Promise<void> {
   const app = createApp();
@@ -14,6 +15,14 @@ async function main(): Promise<void> {
   } catch (error) {
     logger.error('Database connection failed', error as Error);
     process.exit(1);
+  }
+
+  // Seed superadmin if none exists
+  try {
+    const adminService = new AdminService();
+    await adminService.seedSuperAdmin();
+  } catch (error) {
+    logger.error('Failed to seed superadmin', error as Error);
   }
 
   // Initialize Redis connection

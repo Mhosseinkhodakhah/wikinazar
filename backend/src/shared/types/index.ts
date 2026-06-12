@@ -1,5 +1,6 @@
 import { type Request } from 'express';
 import { type Role } from '../../modules/auth/models/user.entity';
+import { type AdminPermission } from '../../modules/admin/models/admin.entity';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -7,6 +8,12 @@ export interface AuthenticatedRequest extends Request {
     email: string;
     username: string;
     role: Role;
+  };
+  admin?: {
+    id: string;
+    username: string;
+    isSuperAdmin: boolean;
+    permissions: AdminPermission[];
   };
 }
 
@@ -18,6 +25,12 @@ declare global {
         email: string;
         username: string;
         role: Role;
+      };
+      admin?: {
+        id: string;
+        username: string;
+        isSuperAdmin: boolean;
+        permissions: AdminPermission[];
       };
     }
   }
