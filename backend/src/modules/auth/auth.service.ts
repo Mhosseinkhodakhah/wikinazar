@@ -1,9 +1,13 @@
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import { UserRepository } from './repositories/user.repository';
 import { hashPassword, comparePassword } from './utils/password.utils';
 import { generateAccessToken, generateRefreshToken, verifyToken } from './utils/jwt.utils';
 import { BadRequestError, ConflictError, UnauthorizedError } from '../../shared/errors/http-error';
 import { type RegisterDto } from './dto/register.dto';
 import { type LoginDto } from './dto/login.dto';
+import { type UpdateProfileDto } from './dto/update-profile.dto';
+import { type ChangePasswordDto } from './dto/change-password.dto';
 import { type AuthResponse, type TokenPayload } from './interfaces/auth.interface';
 import { type UserResponse } from './interfaces/user.interface';
 
@@ -124,5 +128,53 @@ export class AuthService {
     const tokens = this.generateTokens(user);
 
     return tokens;
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<UserResponse> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    const updated = await this.userRepository.update(userId, dto);
+    return this.mapUserToResponse(updated);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    const isCurrentPasswordValid = await comparePassword(dto.currentPassword, user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestError('Current password is incorrect');
+    }
+
+    const newPasswordHash = await hashPassword(dto.newPassword);
+    await this.userRepository.update(userId, { passwordHash: newPasswordHash });
+  }
+
+  async uploadAvatar(userId: string, file: Express.Multer.File, baseUrl: string): Promise<string> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    if (user.avatarUrl) {
+      const oldUrl = user.avatarUrl;
+      if (oldUrl.startsWith('/uploads/')) {
+        const oldPath = path.join(__dirname, '..', '..', '..', '..', oldUrl);
+        try {
+          await fs.unlink(oldPath);
+        } catch {
+          // old file may not exist, ignore
+        }
+      }
+    }
+
+    const avatarUrl = `${baseUrl}/uploads/avatars/${file.filename}`;
+    await this.userRepository.update(userId, { avatarUrl });
+    return avatarUrl;
   }
 }

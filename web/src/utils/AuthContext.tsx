@@ -18,6 +18,7 @@ export interface User {
   points: number;
   experiencesCount: number;
   requestsCount: number;
+  bio: string | null;
 }
 
 interface AuthContextType {
@@ -32,6 +33,8 @@ interface AuthContextType {
   logout: () => void;
   isExpert: boolean;
   loading: boolean;
+  refreshProfile: () => Promise<void>;
+  setUserFromDTO: (dto: UserDTO) => void;
 }
 
 function mapUser(dto: UserDTO): User {
@@ -46,6 +49,7 @@ function mapUser(dto: UserDTO): User {
     points: 0,
     experiencesCount: 0,
     requestsCount: 0,
+    bio: dto.bio,
   };
 }
 
@@ -99,6 +103,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [],
   );
 
+  const setUserFromDTO = useCallback((dto: UserDTO) => {
+    setUser(mapUser(dto));
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    try {
+      const profile = await api.getProfile();
+      setUser(mapUser(profile));
+    } catch {
+      // silently fail — user will see stale data
+    }
+  }, []);
+
   const logout = useCallback(() => {
     clearTokens();
     setUser(null);
@@ -113,6 +130,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         isExpert: user?.role === 'expert',
         loading,
+        refreshProfile,
+        setUserFromDTO,
       }}
     >
       {children}

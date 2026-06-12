@@ -34,4 +34,31 @@ export const authController = {
     logger.info('Auth refreshToken successful');
     res.status(200).json({ success: true, data: result });
   }),
+
+  updateProfile: asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    logger.info('Auth updateProfile', { userId });
+    const result = await authService.updateProfile(userId, req.body);
+    res.status(200).json({ success: true, data: result });
+  }),
+
+  changePassword: asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    logger.info('Auth changePassword', { userId });
+    await authService.changePassword(userId, req.body);
+    res.status(200).json({ success: true, data: { message: 'Password updated successfully' } });
+  }),
+
+  uploadAvatar: asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    logger.info('Auth uploadAvatar', { userId });
+    const file = req.file as Express.Multer.File;
+    if (!file) {
+      res.status(400).json({ success: false, error: { message: 'No file uploaded' } });
+      return;
+    }
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const avatarUrl = await authService.uploadAvatar(userId, file, baseUrl);
+    res.status(200).json({ success: true, data: { avatarUrl } });
+  }),
 };

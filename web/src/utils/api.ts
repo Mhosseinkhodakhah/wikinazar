@@ -300,6 +300,41 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
+  // Profile
+  updateProfile: (data: { displayName?: string; bio?: string }) =>
+    request<UserDTO>('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    request<{ message: string }>('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  uploadAvatar: async (file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const res = await fetch(`${API_BASE}/auth/avatar`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new ApiError(
+        json.error?.message || 'Avatar upload failed',
+        res.status,
+      );
+    }
+    return json.data as { avatarUrl: string };
+  },
+
   // Dashboard
   getCategories: () => request<CategoryDTO[]>('/categories'),
 
