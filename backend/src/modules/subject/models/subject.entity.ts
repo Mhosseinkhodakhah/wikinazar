@@ -28,6 +28,9 @@ export class Subject {
   @Column({ type: 'varchar', nullable: true })
   icon!: string | null;
 
+  @Column('simple-array', { nullable: true })
+  images!: string[] | null;
+
   @Column({ name: 'experience_count', default: 0 })
   experienceCount!: number;
 

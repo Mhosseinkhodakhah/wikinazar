@@ -10,7 +10,7 @@ import { authGuard } from '../auth/guards/auth.guard';
 const experienceRouter = Router();
 
 const imageStorage = multer.diskStorage({
-  destination: path.join(__dirname, '..', '..', '..', '..', 'uploads', 'experiences'),
+  destination: path.join(__dirname, '..', '..', '..', 'uploads', 'experiences'),
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname) || '.jpg';
     cb(null, `${uuid()}${ext}`);

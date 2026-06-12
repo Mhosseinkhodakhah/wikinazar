@@ -5,6 +5,7 @@ export interface SubjectResponse {
   description: string | null;
   category: string | null;
   icon: string | null;
+  images: string[] | null;
   experienceCount: number;
   createdAt: Date;
   updatedAt: Date;

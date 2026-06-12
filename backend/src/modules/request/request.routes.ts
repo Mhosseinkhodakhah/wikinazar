@@ -12,7 +12,7 @@ import { Role } from '../auth/models/user.entity';
 const requestRouter = Router();
 
 const imageStorage = multer.diskStorage({
-  destination: path.join(__dirname, '..', '..', '..', '..', 'uploads', 'requests'),
+  destination: path.join(__dirname, '..', '..', '..', 'uploads', 'requests'),
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname) || '.jpg';
     cb(null, `${uuid()}${ext}`);

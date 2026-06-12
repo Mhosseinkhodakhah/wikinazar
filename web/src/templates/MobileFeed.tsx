@@ -57,6 +57,7 @@ type MappedExperience = {
   comment: string;
   date: string;
   likes: number;
+  picture: string;
 };
 
 const MobileFeed = () => {
@@ -110,6 +111,7 @@ const MobileFeed = () => {
             comment: e.content,
             date: formatRelativeTime(e.createdAt),
             likes: e.likes,
+            picture: e.images?.[0] || '',
           })),
         );
       } catch (err) {
@@ -376,6 +378,16 @@ const MobileFeed = () => {
                             <p className="pr-9 text-xs leading-relaxed text-gray-700">
                               {exp.comment}
                             </p>
+                            {exp.picture && (
+                              <div className="mt-1.5 pr-9">
+                                <img
+                                  src={exp.picture}
+                                  alt="تصویر تجربه"
+                                  className="max-h-32 rounded-lg object-cover"
+                                  loading="lazy"
+                                />
+                              </div>
+                            )}
                             <div className="mt-1.5 flex items-center gap-3 pr-9">
                               <button
                                 onClick={() => toggleLike(exp.id)}

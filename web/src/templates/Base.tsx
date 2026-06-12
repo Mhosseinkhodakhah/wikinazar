@@ -93,6 +93,7 @@ type MappedExperience = {
   comment: string;
   date: string;
   likes: number;
+  picture: string;
 };
 
 type MappedRequest = {
@@ -272,6 +273,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
     comment: e.content,
     date: formatRelativeTime(e.createdAt),
     likes: e.likes,
+    picture: e.images?.[0] || '',
   });
 
   const mapRequest = (r: RequestDTO): MappedRequest => ({
@@ -1051,6 +1053,16 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
               <p className="mb-3 text-sm leading-relaxed text-gray-700 md:text-base">
                 &ldquo;{active.comment}&rdquo;
               </p>
+              {active.picture && (
+                <div className="mb-3">
+                  <img
+                    src={active.picture}
+                    alt="تصویر تجربه"
+                    className="max-h-40 rounded-lg object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
               <div className="flex items-center justify-between border-t border-gray-200 pt-3 text-[11px] text-gray-500 md:text-sm">
                 <span className="flex items-center gap-1">
                   <svg

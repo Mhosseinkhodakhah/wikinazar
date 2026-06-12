@@ -42,6 +42,7 @@ const SubmitExperience = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [subjectImages, setSubjectImages] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -139,10 +140,16 @@ const SubmitExperience = () => {
       let imageUrls: string[] = [];
 
       if (showNewSubject) {
+        let subjectImageUrls: string[] = [];
+        if (subjectImages.length > 0) {
+          const result = await api.uploadExperienceImages(subjectImages);
+          subjectImageUrls = result.images;
+        }
         const created = await api.createSubject({
           title: newSubject.title.trim(),
           description: newSubject.description.trim() || undefined,
           category: newSubject.category,
+          images: subjectImageUrls.length > 0 ? subjectImageUrls : undefined,
         });
         subjectId = created.id;
       } else {
@@ -468,6 +475,58 @@ const SubmitExperience = () => {
                         rows={2}
                         className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-teal-300 focus:outline-none"
                       />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-semibold text-gray-800">
+                        تصویر موضوع (اختیاری)
+                      </label>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-gray-300 bg-white px-5 py-4 text-sm text-gray-600 transition-all hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600">
+                          <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          افزودن عکس
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setSubjectImages((prev) => [...prev, file]);
+                              }
+                            }}
+                          />
+                        </label>
+                        {subjectImages.length > 0 && (
+                          <span className="text-xs text-teal-600">
+                            {subjectImages.length} عکس انتخاب شد
+                          </span>
+                        )}
+                      </div>
+                      {subjectImages.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-3">
+                          {subjectImages.map((file, i) => (
+                            <div key={i} className="group relative">
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`subject upload ${i + 1}`}
+                                className="size-20 rounded-xl object-cover shadow-sm"
+                              />
+                              <button
+                                onClick={() =>
+                                  setSubjectImages((prev) =>
+                                    prev.filter((_, idx) => idx !== i),
+                                  )
+                                }
+                                className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-sm transition-all hover:bg-red-600"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

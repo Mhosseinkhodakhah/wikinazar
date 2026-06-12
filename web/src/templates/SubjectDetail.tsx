@@ -33,6 +33,7 @@ interface ExperienceData {
   comment: string;
   date: string;
   likes: number;
+  picture: string;
 }
 
 type DetailProps = {
@@ -109,11 +110,11 @@ const SubjectDetail = () => {
           type: subjectData.category || '',
           rating: statsData.averageRating,
           reviews: statsData.totalExperiences,
-          image: subjectData.icon || '',
+          image: subjectData.images?.[0] || subjectData.icon || '',
           description: subjectData.description || '',
           tags: [],
           createdAt: subjectData.createdAt,
-          images: subjectData.icon ? [subjectData.icon] : [],
+          images: subjectData.images && subjectData.images.length > 0 ? subjectData.images : (subjectData.icon ? [subjectData.icon] : []),
         };
         setSubject(mapped);
         setExperiences(
@@ -126,6 +127,7 @@ const SubjectDetail = () => {
               comment: e.content,
               date: e.createdAt,
               likes: e.likes,
+              picture: e.images?.[0] || '',
             }),
           ),
         );
@@ -146,11 +148,11 @@ const SubjectDetail = () => {
                   type: s.category || '',
                   rating: 0,
                   reviews: s.experienceCount,
-                  image: s.icon || '',
+                  image: s.images?.[0] || s.icon || '',
                   description: s.description || '',
                   tags: [],
                   createdAt: s.createdAt,
-                  images: s.icon ? [s.icon] : [],
+                  images: s.images && s.images.length > 0 ? s.images : (s.icon ? [s.icon] : []),
                 }),
               ),
           );
@@ -198,6 +200,7 @@ const SubjectDetail = () => {
             comment: e.content,
             date: e.createdAt,
             likes: e.likes,
+            picture: e.images?.[0] || '',
           }),
         ),
       );
@@ -611,6 +614,16 @@ const MobileSubjectDetail = ({
             <p className="mb-2 text-xs leading-relaxed text-gray-700">
               &ldquo;{exp.comment}&rdquo;
             </p>
+            {exp.picture && (
+              <div className="mb-2">
+                <img
+                  src={exp.picture}
+                  alt="تصویر تجربه"
+                  className="max-h-40 rounded-lg object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
             <div className="flex items-center justify-between border-t border-gray-200 pt-2">
               <div className="flex items-center gap-3 text-[10px] text-gray-600">
                 <button
@@ -1035,6 +1048,16 @@ const DesktopSubjectDetail = ({
             <p className="mb-3 text-sm leading-relaxed text-gray-700">
               &ldquo;{exp.comment}&rdquo;
             </p>
+            {exp.picture && (
+              <div className="mb-3">
+                <img
+                  src={exp.picture}
+                  alt="تصویر تجربه"
+                  className="max-h-60 rounded-lg object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
             <div className="flex items-center justify-between border-t border-gray-200 pt-3">
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 <button

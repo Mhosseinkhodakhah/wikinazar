@@ -55,6 +55,7 @@ export class SubjectRepository {
     description?: string;
     category?: string;
     icon?: string;
+    images?: string[];
   }): Promise<Subject> {
     const subject = this.repo.create(data);
     return this.repo.save(subject);
@@ -62,7 +63,7 @@ export class SubjectRepository {
 
   async update(
     id: string,
-    data: Partial<Pick<Subject, 'title' | 'slug' | 'description' | 'category' | 'icon'>>,
+    data: Partial<Pick<Subject, 'title' | 'slug' | 'description' | 'category' | 'icon' | 'images'>>,
   ): Promise<Subject> {
     await this.repo.update(id, data);
     return this.repo.findOneByOrFail({ id });

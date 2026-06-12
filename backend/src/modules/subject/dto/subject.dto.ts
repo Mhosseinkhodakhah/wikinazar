@@ -5,6 +5,7 @@ export const createSubjectSchema = z.object({
   description: z.string().max(2000).optional(),
   category: z.string().max(100).optional(),
   icon: z.string().max(50).optional(),
+  images: z.array(z.string()).max(10).optional(),
 });
 
 export const updateSubjectSchema = createSubjectSchema.partial();

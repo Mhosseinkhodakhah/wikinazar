@@ -20,6 +20,7 @@ export class SubjectService {
     description: string | null;
     category: string | null;
     icon: string | null;
+    images: string[] | null;
     experienceCount: number;
     createdAt: Date;
     updatedAt: Date;
@@ -31,6 +32,7 @@ export class SubjectService {
       description: subject.description,
       category: subject.category,
       icon: subject.icon,
+      images: subject.images,
       experienceCount: subject.experienceCount,
       createdAt: subject.createdAt,
       updatedAt: subject.updatedAt,
@@ -107,6 +109,7 @@ export class SubjectService {
       description: dto.description,
       category: dto.category,
       icon: dto.icon,
+      images: dto.images,
     });
 
     await invalidateCachePattern('subjects:*');
@@ -140,6 +143,7 @@ export class SubjectService {
     if (dto.description !== undefined) updateData.description = dto.description;
     if (dto.category !== undefined) updateData.category = dto.category;
     if (dto.icon !== undefined) updateData.icon = dto.icon;
+    if (dto.images !== undefined) updateData.images = dto.images;
 
     const subject = await this.repository.update(id, updateData as Parameters<typeof this.repository.update>[1]);
 

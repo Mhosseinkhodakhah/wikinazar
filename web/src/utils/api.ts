@@ -190,6 +190,7 @@ export const api = {
     description?: string;
     category?: string;
     icon?: string;
+    images?: string[];
   }) =>
     request<SubjectDTO>('/subjects', {
       method: 'POST',
@@ -403,6 +404,7 @@ export interface SubjectDTO {
   description: string | null;
   category: string | null;
   icon: string | null;
+  images: string[] | null;
   experienceCount: number;
   createdAt: string;
   updatedAt: string;

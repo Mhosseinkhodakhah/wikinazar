@@ -79,6 +79,7 @@ const AllSubjects = () => {
       comment: string;
       date: string;
       likes: number;
+      picture: string;
     }[]
   >([]);
   useEffect(() => {
@@ -120,6 +121,7 @@ const AllSubjects = () => {
             comment: e.content,
             date: formatRelativeTime(e.createdAt),
             likes: e.likes,
+            picture: e.images?.[0] || '',
           })),
         );
       } catch (err) {
@@ -428,6 +430,16 @@ const AllSubjects = () => {
                             <p className="pr-10 text-sm leading-relaxed text-gray-700">
                               {exp.comment}
                             </p>
+                            {exp.picture && (
+                              <div className="mt-2 pr-10">
+                                <img
+                                  src={exp.picture}
+                                  alt="تصویر تجربه"
+                                  className="max-h-40 rounded-lg object-cover"
+                                  loading="lazy"
+                                />
+                              </div>
+                            )}
                             <div className="mt-2 flex items-center gap-4 pr-10">
                               <button
                                 onClick={() => toggleLike(exp.id)}
