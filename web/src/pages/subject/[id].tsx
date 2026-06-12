@@ -1,10 +1,6 @@
+'use client'
 import { SubjectDetail } from '../../templates/SubjectDetail';
 
-const SubjectPage = () => {
-console.log('it comes heeee')
-return (
-<SubjectDetail />
-)
-};
+const SubjectPage = () => <SubjectDetail />;
 
 export default SubjectPage;

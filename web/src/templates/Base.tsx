@@ -358,7 +358,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
           },
           {
             value: toPersianNum(requestsRes.total),
-            label: 'ththth',
+            label: 'درخواست',
             icon: '📝',
           },
           {
