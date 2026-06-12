@@ -12,8 +12,8 @@ subjectRouter.get('/', validate(subjectQuerySchema, 'query'), subjectController.
 subjectRouter.get('/slug/:slug', subjectController.findBySlug);
 subjectRouter.get('/:id', subjectController.findById);
 
-subjectRouter.post('/', authGuard, rolesGuard(Role.EXPERT), validate(createSubjectSchema), subjectController.create);
-subjectRouter.patch('/:id', authGuard, rolesGuard(Role.EXPERT), validate(updateSubjectSchema), subjectController.update);
-subjectRouter.delete('/:id', authGuard, rolesGuard(Role.EXPERT), subjectController.delete);
+subjectRouter.post('/', authGuard, rolesGuard(Role.USER), validate(createSubjectSchema), subjectController.create);
+subjectRouter.patch('/:id', authGuard, rolesGuard(Role.USER), validate(updateSubjectSchema), subjectController.update);
+subjectRouter.delete('/:id', authGuard, rolesGuard(Role.USER), subjectController.delete);
 
 export { subjectRouter };

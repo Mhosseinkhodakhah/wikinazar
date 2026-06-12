@@ -38,6 +38,6 @@ requestRouter.get('/', validate(requestQuerySchema, 'query'), requestController.
 requestRouter.post('/', authGuard, validate(createRequestSchema), requestController.create);
 requestRouter.post('/images', authGuard, upload.array('images', 10), requestController.uploadImages);
 requestRouter.post('/:id/vote', authGuard, requestController.vote);
-requestRouter.patch('/:id/status', authGuard, rolesGuard(Role.EXPERT), validate(updateStatusSchema), requestController.updateStatus);
+requestRouter.patch('/:id/status', authGuard, rolesGuard(Role.USER), validate(updateStatusSchema), requestController.updateStatus);
 
 export { requestRouter };

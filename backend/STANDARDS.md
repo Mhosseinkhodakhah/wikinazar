@@ -105,7 +105,7 @@ moduleName/
 | Functions | `camelCase` | `generateAccessToken`, `hashPassword`, `asyncHandler` |
 | Variables / Constants | `camelCase` | `authService`, `experienceRouter`, `moduleRouter` |
 | Enum types | `PascalCase` | `Role` |
-| Enum values | `UPPER_CASE` | `Role.USER`, `Role.EXPERT` |
+| Enum values | `UPPER_CASE` | `Role.USER`, `Role.USER` |
 | Database columns | `snake_case` (via `name:` decorator) | `password_hash`, `display_name`, `created_at` |
 | Entity properties | `camelCase` (maps to `snake_case` column) | `passwordHash`, `displayName`, `createdAt` |
 | File exports | Named exports preferred | `export { authRouter }`, `export class AuthService` |
@@ -368,11 +368,11 @@ export class UserRepository {
 ### 8.2 Authorization (Role-Based)
 
 - **Guard:** `rolesGuard(...allowedRoles)` middleware checks user role
-- **Roles:** `Role.USER`, `Role.EXPERT`
+- **Roles:** `Role.USER`, `Role.USER`
 - Applied after `authGuard`
 
 ```typescript
-router.post('/', authGuard, rolesGuard(Role.EXPERT), subjectController.create);
+router.post('/', authGuard, rolesGuard(Role.USER), subjectController.create);
 ```
 
 ---
