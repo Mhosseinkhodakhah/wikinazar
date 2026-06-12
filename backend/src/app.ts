@@ -34,15 +34,15 @@ export function createApp(): Express {
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
   // Global rate limiting — per IP
-  app.use(
-    rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 200,
-      standardHeaders: true,
-      legacyHeaders: false,
-      message: { success: false, error: { message: 'Too many requests, please try again later' } },
-    }),
-  );
+  // app.use(
+  //   rateLimit({
+  //     windowMs: 15 * 60 * 1000,
+  //     max: 200,
+  //     standardHeaders: true,
+  //     legacyHeaders: false,
+  //     message: { success: false, error: { message: 'Too many requests, please try again later' } },
+  //   }),
+  // );
 
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
