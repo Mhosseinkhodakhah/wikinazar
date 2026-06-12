@@ -1,7 +1,7 @@
 import { UserRepository } from './repositories/user.repository';
 import { hashPassword, comparePassword } from './utils/password.utils';
 import { generateAccessToken, generateRefreshToken, verifyToken } from './utils/jwt.utils';
-import { ConflictError, UnauthorizedError } from '../../shared/errors/http-error';
+import { BadRequestError, ConflictError, UnauthorizedError } from '../../shared/errors/http-error';
 import { type RegisterDto } from './dto/register.dto';
 import { type LoginDto } from './dto/login.dto';
 import { type AuthResponse, type TokenPayload } from './interfaces/auth.interface';
@@ -83,12 +83,12 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.userRepository.findByEmail(dto.email);
     if (!user) {
-      throw new UnauthorizedError('Invalid email or password');
+      throw new BadRequestError('Invalid email or password');
     }
 
     const isPasswordValid = await comparePassword(dto.password, user.passwordHash);
     if (!isPasswordValid) {
-      throw new UnauthorizedError('Invalid email or password');
+      throw new BadRequestError('Invalid email or password');
     }
 
     const tokens = this.generateTokens(user);
