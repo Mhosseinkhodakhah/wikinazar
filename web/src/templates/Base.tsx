@@ -213,7 +213,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   const [requests, setRequests] = useState<MappedRequest[]>([]);
   const [stats, setStats] = useState([
     { value: '۰', label: 'موضوع', icon: '📋' },
-    { value: '۰', label: 'تجربه', icon: '💬' },
+    { value: '۰', label: 'th; th;', icon: '💬' },
     { value: '۰', label: 'درخواست', icon: '📝' },
     { value: '۰', label: 'میانگین امتیاز', icon: '⭐' },
   ]);
