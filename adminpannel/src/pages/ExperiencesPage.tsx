@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api/client';
 import { useI18n } from '../i18n';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface ExperienceData {
   id: string; content: string; rating: number; likes: number;
@@ -20,27 +21,28 @@ export default function ExperiencesPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { t, dir } = useI18n();
   const limit = 20;
+  const debouncedSearchId = useDebounce(searchId, 400);
 
   const fetchExperiences = useCallback(async () => {
     setLoading(true); setError('');
     try {
       const result = await api.getAllExperiences({
         page, limit,
-        subjectId: searchId || undefined,
+        subjectId: debouncedSearchId || undefined,
         minRating: minRating ? parseInt(minRating) : undefined,
       });
       setExperiences(result.experiences as unknown as ExperienceData[]);
       setTotal(result.total);
-    } catch { setError('Failed to load'); }
+    } catch { setError(t.experiences.loadError); }
     finally { setLoading(false); }
-  }, [page, searchId, minRating]);
+  }, [page, debouncedSearchId, minRating]);
 
   useEffect(() => { fetchExperiences(); }, [fetchExperiences]);
 
   const handleDelete = async (id: string) => {
     if (!confirm(t.app.confirmDelete)) return;
     try { await api.deleteExperience(id); await fetchExperiences(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Delete failed'); }
+    catch (err) { setError(err instanceof Error ? err.message : t.experiences.deleteFailed); }
   };
 
   const s = {
@@ -93,8 +95,8 @@ export default function ExperiencesPage() {
             </thead>
             <tbody>
               {experiences.map((exp) => (
-                <>
-                  <tr key={exp.id}>
+                <React.Fragment key={exp.id}>
+                  <tr>
                     <td style={s.contentCell} onClick={() => setExpandedId(expandedId === exp.id ? null : exp.id)} title={exp.content}>
                       {exp.content.substring(0, 80)}...
                     </td>
@@ -125,7 +127,7 @@ export default function ExperiencesPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>

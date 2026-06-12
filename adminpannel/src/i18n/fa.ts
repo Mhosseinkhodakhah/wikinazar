@@ -21,7 +21,6 @@ const fa: Translations = {
     back: 'بازگشت',
     close: 'بستن',
     language: 'زبان',
-    mockMode: 'حالت آزمایشی',
   },
   login: {
     username: 'نام کاربری',
@@ -29,11 +28,6 @@ const fa: Translations = {
     signIn: 'ورود',
     signingIn: 'در حال ورود...',
     error: 'نام کاربری یا رمز عبور اشتباه است',
-    mockToggle: 'حالت آزمایشی: {status}',
-    on: 'فعال',
-    off: 'غیرفعال',
-    clickToToggle: 'برای تغییر کلیک کنید',
-    credentials: 'پیش‌فرض: superadmin / Lucifer@25255225',
   },
   sidebar: {
     dashboard: 'داشبورد',
@@ -81,6 +75,9 @@ const fa: Translations = {
     admin: 'مدیر',
     created: 'تاریخ ایجاد',
     noModifySuper: 'امکان ویرایش مدیرکل وجود ندارد',
+    loadError: 'بارگذاری مدیران ناموفق بود',
+    operationFailed: 'عملیات ناموفق بود',
+    deleteFailed: 'حذف ناموفق بود',
   },
   users: {
     title: 'مدیریت کاربران',
@@ -96,6 +93,9 @@ const fa: Translations = {
     deleteUser: 'حذف کاربر',
     user: 'کاربر',
     expert: 'متخصص',
+    loadError: 'بارگذاری کاربران ناموفق بود',
+    roleUpdateFailed: 'تغییر نقش ناموفق بود',
+    deleteFailed: 'حذف ناموفق بود',
   },
   subjects: {
     title: 'مدیریت موضوعات',
@@ -108,6 +108,9 @@ const fa: Translations = {
     icon: 'آیکون',
     experienceCount: 'تجربیات',
     createdAt: 'تاریخ ایجاد',
+    loadError: 'بارگذاری موضوعات ناموفق بود',
+    operationFailed: 'عملیات ناموفق بود',
+    deleteFailed: 'حذف ناموفق بود',
   },
   experiences: {
     title: 'مدیریت تجربیات',
@@ -120,6 +123,9 @@ const fa: Translations = {
     delete: 'حذف تجربه',
     filterSubject: 'فیلتر بر اساس موضوع',
     filterRating: 'حداقل امتیاز',
+    loadError: 'بارگذاری تجربیات ناموفق بود',
+    deleteFailed: 'حذف ناموفق بود',
+    noDescription: '(بدون توضیحات)',
   },
   requests: {
     title: 'مدیریت درخواست‌ها',
@@ -136,6 +142,10 @@ const fa: Translations = {
     delete: 'حذف درخواست',
     filterStatus: 'فیلتر بر اساس وضعیت',
     all: 'همه',
+    loadError: 'بارگذاری درخواست‌ها ناموفق بود',
+    statusUpdateFailed: 'تغییر وضعیت ناموفق بود',
+    deleteFailed: 'حذف ناموفق بود',
+    noDescription: '(بدون توضیحات)',
   },
 };
 

@@ -17,6 +17,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function PermissionRoute({ permission, children }: { permission: string; children: React.ReactNode }) {
+  const { admin } = useAuth();
+  if (!admin) return <Navigate to="/login" replace />;
+  const hasAccess = admin.isSuperAdmin || admin.permissions.includes(permission);
+  if (!hasAccess) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   const { admin } = useAuth();
   return (
@@ -24,11 +32,11 @@ function AppRoutes() {
       <Route path="/login" element={admin ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<DashboardPage />} />
-        <Route path="admins" element={<AdminsPage />} />
-        <Route path="users" element={<UsersPage />} />
-        <Route path="subjects" element={<SubjectsPage />} />
-        <Route path="experiences" element={<ExperiencesPage />} />
-        <Route path="requests" element={<RequestsPage />} />
+        <Route path="admins" element={<PermissionRoute permission="admins"><AdminsPage /></PermissionRoute>} />
+        <Route path="users" element={<PermissionRoute permission="users"><UsersPage /></PermissionRoute>} />
+        <Route path="subjects" element={<PermissionRoute permission="subjects"><SubjectsPage /></PermissionRoute>} />
+        <Route path="experiences" element={<PermissionRoute permission="experiences"><ExperiencesPage /></PermissionRoute>} />
+        <Route path="requests" element={<PermissionRoute permission="requests"><RequestsPage /></PermissionRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

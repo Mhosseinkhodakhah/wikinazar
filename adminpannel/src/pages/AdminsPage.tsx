@@ -20,9 +20,9 @@ export default function AdminsPage() {
 
   const fetchAdmins = useCallback(async () => {
     try { setAdmins(await api.getAllAdmins()); }
-    catch { setError('Failed to load'); }
+    catch { setError(t.admins.loadError); }
     finally { setLoading(false); }
-  }, []);
+  }, [t]);
 
   useEffect(() => { fetchAdmins(); }, [fetchAdmins]);
 
@@ -55,13 +55,13 @@ export default function AdminsPage() {
         await api.createAdmin({ username: form.username, password: form.password, displayName: form.displayName || null, permissions: form.permissions });
       }
       resetForm(); await fetchAdmins();
-    } catch (err) { setError(err instanceof Error ? err.message : 'Operation failed'); }
+    } catch (err) { setError(err instanceof Error ? err.message : t.admins.operationFailed); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(t.app.confirmDelete)) return;
     try { await api.deleteAdmin(id); await fetchAdmins(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Delete failed'); }
+    catch (err) { setError(err instanceof Error ? err.message : t.admins.deleteFailed); }
   };
 
   const s = {

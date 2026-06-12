@@ -19,7 +19,6 @@ const en = {
     back: 'Back',
     close: 'Close',
     language: 'Language',
-    mockMode: 'Mock Mode',
   },
   login: {
     username: 'Username',
@@ -27,11 +26,6 @@ const en = {
     signIn: 'Sign In',
     signingIn: 'Signing in...',
     error: 'Invalid username or password',
-    mockToggle: 'Mock Mode: {status}',
-    on: 'ON',
-    off: 'OFF',
-    clickToToggle: 'Click to toggle',
-    credentials: 'Default: superadmin / Lucifer@25255225',
   },
   sidebar: {
     dashboard: 'Dashboard',
@@ -79,6 +73,9 @@ const en = {
     admin: 'Admin',
     created: 'Created',
     noModifySuper: 'Cannot modify superadmin',
+    loadError: 'Failed to load admins',
+    operationFailed: 'Operation failed',
+    deleteFailed: 'Delete failed',
   },
   users: {
     title: 'User Management',
@@ -94,6 +91,9 @@ const en = {
     deleteUser: 'Delete User',
     user: 'User',
     expert: 'Expert',
+    loadError: 'Failed to load users',
+    roleUpdateFailed: 'Failed to update role',
+    deleteFailed: 'Delete failed',
   },
   subjects: {
     title: 'Subject Management',
@@ -106,6 +106,9 @@ const en = {
     icon: 'Icon',
     experienceCount: 'Experiences',
     createdAt: 'Created',
+    loadError: 'Failed to load subjects',
+    operationFailed: 'Operation failed',
+    deleteFailed: 'Delete failed',
   },
   experiences: {
     title: 'Experience Management',
@@ -118,6 +121,9 @@ const en = {
     delete: 'Delete Experience',
     filterSubject: 'Filter by Subject',
     filterRating: 'Min Rating',
+    loadError: 'Failed to load experiences',
+    deleteFailed: 'Delete failed',
+    noDescription: '(no description)',
   },
   requests: {
     title: 'Request Management',
@@ -134,6 +140,10 @@ const en = {
     delete: 'Delete Request',
     filterStatus: 'Filter by Status',
     all: 'All',
+    loadError: 'Failed to load requests',
+    statusUpdateFailed: 'Failed to update status',
+    deleteFailed: 'Delete failed',
+    noDescription: '(no description)',
   },
 };
 

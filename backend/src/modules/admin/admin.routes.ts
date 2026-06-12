@@ -4,6 +4,10 @@ import { validate } from '../../shared/middleware/validation.middleware';
 import { adminLoginSchema } from './dto/login.dto';
 import { createAdminSchema } from './dto/create-admin.dto';
 import { updateAdminSchema } from './dto/update-admin.dto';
+import { createSubjectSchema } from './dto/create-subject.dto';
+import { updateSubjectSchema } from './dto/update-subject.dto';
+import { updateUserSchema } from './dto/update-user.dto';
+import { updateRequestStatusSchema } from './dto/update-request-status.dto';
 import { adminGuard } from './guards/admin.guard';
 import { permissionGuard } from './guards/permission.guard';
 
@@ -21,12 +25,12 @@ adminRouter.delete('/admins/:id', adminGuard, permissionGuard('admins'), adminCo
 
 adminRouter.get('/users', adminGuard, permissionGuard('users'), adminController.getAllUsers);
 adminRouter.get('/users/:id', adminGuard, permissionGuard('users'), adminController.getUserById);
-adminRouter.patch('/users/:id', adminGuard, permissionGuard('users'), adminController.updateUser);
+adminRouter.patch('/users/:id', adminGuard, permissionGuard('users'), validate(updateUserSchema), adminController.updateUser);
 adminRouter.delete('/users/:id', adminGuard, permissionGuard('users'), adminController.deleteUser);
 
 adminRouter.get('/subjects', adminGuard, permissionGuard('subjects'), adminController.getAllSubjects);
-adminRouter.post('/subjects', adminGuard, permissionGuard('subjects'), adminController.createSubject);
-adminRouter.patch('/subjects/:id', adminGuard, permissionGuard('subjects'), adminController.updateSubject);
+adminRouter.post('/subjects', adminGuard, permissionGuard('subjects'), validate(createSubjectSchema), adminController.createSubject);
+adminRouter.patch('/subjects/:id', adminGuard, permissionGuard('subjects'), validate(updateSubjectSchema), adminController.updateSubject);
 adminRouter.delete('/subjects/:id', adminGuard, permissionGuard('subjects'), adminController.deleteSubject);
 
 adminRouter.get('/experiences', adminGuard, permissionGuard('experiences'), adminController.getAllExperiences);
@@ -34,7 +38,7 @@ adminRouter.get('/experiences/:id', adminGuard, permissionGuard('experiences'), 
 adminRouter.delete('/experiences/:id', adminGuard, permissionGuard('experiences'), adminController.deleteExperience);
 
 adminRouter.get('/requests', adminGuard, permissionGuard('requests'), adminController.getAllRequests);
-adminRouter.patch('/requests/:id/status', adminGuard, permissionGuard('requests'), adminController.updateRequestStatus);
+adminRouter.patch('/requests/:id/status', adminGuard, permissionGuard('requests'), validate(updateRequestStatusSchema), adminController.updateRequestStatus);
 adminRouter.delete('/requests/:id', adminGuard, permissionGuard('requests'), adminController.deleteRequest);
 
 export { adminRouter };

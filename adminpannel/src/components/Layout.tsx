@@ -139,7 +139,6 @@ export default function Layout() {
               key={item.path}
               to={item.path}
               end={item.path === '/'}
-              onClick={() => setSidebarOpen(false)}
               style={({ isActive }) => s.link(isActive)}
             >
               <span>{item.icon}</span>

@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api/client';
 import { useI18n } from '../i18n';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface UserData {
   id: string; username: string; email: string; role: string;
@@ -17,16 +18,17 @@ export default function UsersPage() {
   const [error, setError] = useState('');
   const { t, dir } = useI18n();
   const limit = 20;
+  const debouncedSearch = useDebounce(search, 400);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const result = await api.getAllUsers({ page, limit, search: search || undefined, role: roleFilter || undefined });
+      const result = await api.getAllUsers({ page, limit, search: debouncedSearch || undefined, role: roleFilter || undefined });
       setUsers(result.users as unknown as UserData[]);
       setTotal(result.total);
-    } catch { setError('Failed to load users'); }
+    } catch { setError(t.users.loadError); }
     finally { setLoading(false); }
-  }, [page, search, roleFilter]);
+  }, [page, debouncedSearch, roleFilter]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
@@ -34,13 +36,13 @@ export default function UsersPage() {
     try {
       await api.updateUser(id, { role: newRole });
       await fetchUsers();
-    } catch (err) { setError(err instanceof Error ? err.message : 'Failed to update role'); }
+    }     catch (err) { setError(err instanceof Error ? err.message : t.users.roleUpdateFailed); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(t.app.confirmDelete)) return;
     try { await api.deleteUser(id); await fetchUsers(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Delete failed'); }
+    catch (err) { setError(err instanceof Error ? err.message : t.users.deleteFailed); }
   };
 
   const s = {

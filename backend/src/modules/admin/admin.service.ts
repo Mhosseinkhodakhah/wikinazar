@@ -13,6 +13,7 @@ import { SubjectRepository } from '../subject/repositories/subject.repository';
 import { ExperienceRepository } from '../experience/repositories/experience.repository';
 import { RequestRepository } from '../request/repositories/request.repository';
 import { getDataSource } from '../../shared/database/typeorm';
+import { ILike } from 'typeorm';
 import { User } from '../auth/models/user.entity';
 import { Subject } from '../subject/models/subject.entity';
 import { Experience } from '../experience/models/experience.entity';
@@ -256,8 +257,8 @@ export class AdminService {
     if (params.search) {
       const [users, total] = await userRepo.findAndCount({
         where: [
-          { ...where, username: { _ilike: `%${params.search}%` } } as any,
-          { ...where, email: { _ilike: `%${params.search}%` } } as any,
+          { ...where, username: ILike(`%${params.search}%`) },
+          { ...where, email: ILike(`%${params.search}%`) },
         ],
         skip: (params.page - 1) * params.limit,
         take: params.limit,
@@ -320,6 +321,10 @@ export class AdminService {
   }
 
   async createSubject(data: { title: string; slug: string; description?: string; category?: string; icon?: string }): Promise<Subject> {
+    const existingSlug = await this.subjectRepository.findBySlug(data.slug);
+    if (existingSlug) {
+      throw new ConflictError('Subject slug already exists');
+    }
     return this.subjectRepository.create(data);
   }
 

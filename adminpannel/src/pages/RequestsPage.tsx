@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api/client';
 import { useI18n } from '../i18n';
 
@@ -25,7 +25,7 @@ export default function RequestsPage() {
       const result = await api.getAllRequests({ page, limit, status: statusFilter || undefined });
       setRequests(result.requests as unknown as RequestData[]);
       setTotal(result.total);
-    } catch { setError('Failed to load'); }
+    } catch { setError(t.requests.loadError); }
     finally { setLoading(false); }
   }, [page, statusFilter]);
 
@@ -33,13 +33,13 @@ export default function RequestsPage() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try { await api.updateRequestStatus(id, newStatus); await fetchRequests(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Failed to update status'); }
+    catch (err) { setError(err instanceof Error ? err.message : t.requests.statusUpdateFailed); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(t.app.confirmDelete)) return;
     try { await api.deleteRequest(id); await fetchRequests(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Delete failed'); }
+    catch (err) { setError(err instanceof Error ? err.message : t.requests.deleteFailed); }
   };
 
   const statusColors: Record<string, string> = {
@@ -98,8 +98,8 @@ export default function RequestsPage() {
             </thead>
             <tbody>
               {requests.map((req) => (
-                <>
-                  <tr key={req.id}>
+                <React.Fragment key={req.id}>
+                  <tr>
                     <td
                       style={{ ...s.td, cursor: 'pointer', fontWeight: 500 }}
                       onClick={() => setExpandedId(expandedId === req.id ? null : req.id)}
@@ -135,7 +135,7 @@ export default function RequestsPage() {
                     <tr key={`${req.id}-detail`}>
                       <td colSpan={6} style={s.expanded}>
                         <div><strong>{t.requests.description}:</strong></div>
-                        <div style={{ marginTop: 4, marginBottom: 8 }}>{req.description || '(no description)'}</div>
+                        <div style={{ marginTop: 4, marginBottom: 8 }}>{req.description || t.requests.noDescription}</div>
                         <div>
                           <span style={s.infoTag}><strong>ID:</strong> {req.id}</span>
                           <span style={s.infoTag}><strong>{t.requests.requester}:</strong> {req.requester?.username || req.requesterId}</span>
@@ -143,7 +143,7 @@ export default function RequestsPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>

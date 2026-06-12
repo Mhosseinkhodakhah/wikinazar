@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api/client';
 import { useI18n } from '../i18n';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface SubjectData {
   id: string; title: string; slug: string; description: string | null;
@@ -16,18 +17,20 @@ export default function SubjectsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ title: '', slug: '', description: '', category: '', icon: '' });
+  const [page, setPage] = useState(1);
   const { t, dir } = useI18n();
-  const page = 1; const limit = 50;
+  const limit = 20;
+  const debouncedSearch = useDebounce(search, 400);
 
   const fetchSubjects = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await api.getAllSubjects({ page, limit, search: search || undefined });
+      const result = await api.getAllSubjects({ page, limit, search: debouncedSearch || undefined });
       setSubjects(result.subjects as unknown as SubjectData[]);
       setTotal(result.total);
-    } catch { setError('Failed to load'); }
+    } catch { setError(t.subjects.loadError); }
     finally { setLoading(false); }
-  }, [search]);
+  }, [page, debouncedSearch]);
 
   useEffect(() => { fetchSubjects(); }, [fetchSubjects]);
 
@@ -50,13 +53,13 @@ export default function SubjectsPage() {
         await api.createSubject({ title: form.title, slug: form.slug, description: form.description || undefined, category: form.category || undefined, icon: form.icon || undefined });
       }
       resetForm(); await fetchSubjects();
-    } catch (err) { setError(err instanceof Error ? err.message : 'Operation failed'); }
+    } catch (err) { setError(err instanceof Error ? err.message : t.subjects.operationFailed); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm(t.app.confirmDelete)) return;
     try { await api.deleteSubject(id); await fetchSubjects(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Delete failed'); }
+    catch (err) { setError(err instanceof Error ? err.message : t.subjects.deleteFailed); }
   };
 
   const s = {
