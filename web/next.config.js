@@ -10,6 +10,7 @@ module.exports = withBundleAnalyzer({
   poweredByHeader: false,
   trailingSlash: true,
   basePath: '',
+  output: 'export',
   reactStrictMode: true,
   webpack: (config, { dev }) => {
     if (dev) {
