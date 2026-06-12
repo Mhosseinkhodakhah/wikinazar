@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5050',
+        target: 'https://api.sunbit.ir/v1/admin',
         changeOrigin: true,
       },
     },

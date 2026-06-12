@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { LoginModal } from '../components/LoginModal';
 import { Meta } from '../layout/Meta';
@@ -9,6 +10,7 @@ import { useAuth } from '../utils/AuthContext';
 import { Lightbox } from '../utils/Lightbox';
 import { SkeletonCard } from '../utils/Skeleton';
 import { useToast } from '../utils/ToastContext';
+import { useDebounce } from '../utils/useDebounce';
 import { useMobile } from '../utils/useMobile';
 import { Footer } from './Footer';
 import { MobileFeed } from './MobileFeed';
@@ -121,8 +123,82 @@ type MappedRequest = {
   status: string;
 };
 
+const SearchSuggestions = memo(function SearchSuggestions({
+  searchQuery,
+  searchHistory,
+  searchResults,
+  searchLoading,
+  onSelect,
+  onClose,
+  show,
+}: {
+  searchQuery: string;
+  searchHistory: string[];
+  searchResults: MappedSubject[];
+  searchLoading: boolean;
+  onSelect: (q: string) => void;
+  onClose: () => void;
+  show: boolean;
+}) {
+  if (
+    !show ||
+    (!searchQuery &&
+      searchHistory.length === 0 &&
+      !searchLoading &&
+      searchResults.length === 0)
+  )
+    return null;
+
+  const matchedHistory = searchQuery
+    ? searchHistory.filter((s) => s.includes(searchQuery))
+    : [];
+
+  return (
+    <div className="absolute z-20 mt-1 w-full rounded-xl border border-gray-300 bg-white p-2 shadow-lg">
+      {matchedHistory.map((s) => (
+        <button
+          key={s}
+          onClick={() => onSelect(s)}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-700 transition-all hover:bg-teal-50"
+        >
+          🕐 {s}
+        </button>
+      ))}
+      {searchLoading && (
+        <div className="flex items-center justify-center py-3">
+          <div className="size-4 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+        </div>
+      )}
+      {searchResults.map((p) => (
+        <Link
+          key={p.id}
+          href={`/subject/${p.id}`}
+          onClick={() => {
+            const updated = [
+              p.name,
+              ...searchHistory.filter((s) => s !== p.name),
+            ].slice(0, 5);
+            localStorage.setItem('searchHistory', JSON.stringify(updated));
+            onClose();
+          }}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-700 transition-all hover:bg-teal-50"
+        >
+          📍 {p.name}
+        </Link>
+      ))}
+      <button
+        onClick={onClose}
+        className="mt-1 w-full text-center text-[10px] text-gray-500 hover:text-gray-700"
+      >
+        بستن
+      </button>
+    </div>
+  );
+});
+
 const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   const isMobile = useMobile();
+  const router = useRouter();
   const { user, logout } = useAuth();
   const { toast } = useToast();
 
@@ -132,7 +208,11 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   const [loading, setLoading] = useState(true);
   const [lightboxImg, setLightboxImg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const debouncedApiSearch = useDebounce(searchQuery, 3000);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [searchResults, setSearchResults] = useState<MappedSubject[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [nearMe, setNearMe] = useState(false);
   const [, setUserLat] = useState(0);
@@ -150,6 +230,19 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
     { value: '۰', label: 'درخواست', icon: '📝' },
     { value: '۰', label: 'میانگین امتیاز', icon: '⭐' },
   ]);
+
+  const filteredSubjects = useMemo(
+    () =>
+      subjects
+        .filter((s) => activeTab === 'all' || s.type === activeTab)
+        .filter(
+          (s) =>
+            !debouncedSearchQuery ||
+            s.name.includes(debouncedSearchQuery) ||
+            s.nameEn.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
+        ),
+    [subjects, activeTab, debouncedSearchQuery],
+  );
 
   function toPersianNum(n: number): string {
     const pd = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -289,13 +382,40 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!debouncedApiSearch.trim()) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return undefined;
+    }
+    let cancelled = false;
+    setSearchLoading(true);
+    api
+      .getSubjects({ search: debouncedApiSearch, limit: 5 })
+      .then((res) => {
+        if (!cancelled) setSearchResults(res.subjects.map(mapSubject));
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setSearchLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedApiSearch]);
+
   const handleSearch = (q: string) => {
     if (!q.trim()) return;
     const updated = [q, ...searchHistory.filter((s) => s !== q)].slice(0, 5);
     setSearchHistory(updated);
     localStorage.setItem('searchHistory', JSON.stringify(updated));
     setShowSuggestions(false);
-    toast(`نتایج جستجو برای "${q}"`, 'info');
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  };
+
+  const handleSelect = (q: string) => {
+    setSearchQuery(q);
+    handleSearch(q);
   };
 
   const handleNearMe = () => {
@@ -327,7 +447,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
   const getCategoryName = (id: string) =>
     categories.find((c) => c.id === id)?.name ?? id;
 
-  const Hero = () => (
+  const heroSection = (
     <div
       id="main-content"
       className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gray-50 to-white"
@@ -364,10 +484,6 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
                   setSearchQuery(e.target.value);
                   setShowSuggestions(true);
                 }}
-                onFocus={() => setShowSuggestions(true)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSearch(searchQuery);
-                }}
                 placeholder="اسم موضوع مورد نظرت رو بنویس..."
                 className="flex-1 rounded-lg bg-gray-50 px-4 py-3 text-right text-sm text-gray-700 placeholder:text-gray-500 focus:outline-none"
               />
@@ -379,49 +495,15 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
                 بگرد
               </button>
             </div>
-            {showSuggestions && (searchQuery || searchHistory.length > 0) && (
-              <div className="absolute z-20 mt-1 w-full rounded-xl border border-gray-300 bg-white p-2 shadow-lg">
-                {searchHistory
-                  .filter((s) => s.includes(searchQuery))
-                  .map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => {
-                        setSearchQuery(s);
-                        handleSearch(s);
-                      }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-700 transition-all hover:bg-teal-50"
-                    >
-                      🕐 {s}
-                    </button>
-                  ))}
-                {subjects
-                  .filter((p) => p.name.includes(searchQuery))
-                  .slice(0, 3)
-                  .map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => {
-                        setSearchQuery(p.name);
-                        handleSearch(p.name);
-                      }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-700 transition-all hover:bg-teal-50"
-                    >
-                      📍 {p.name}
-                    </button>
-                  ))}
-                {(searchQuery || searchHistory.length > 0) && (
-                  <button
-                    onClick={() => {
-                      setShowSuggestions(false);
-                    }}
-                    className="mt-1 w-full text-center text-[10px] text-gray-500 hover:text-gray-700"
-                  >
-                    بستن
-                  </button>
-                )}
-              </div>
-            )}
+            <SearchSuggestions
+              show={showSuggestions}
+              searchQuery={searchQuery}
+              searchHistory={searchHistory}
+              searchResults={searchResults}
+              searchLoading={searchLoading}
+              onSelect={handleSelect}
+              onClose={() => setShowSuggestions(false)}
+            />
           </div>
         </div>
         <div className="mb-4 flex flex-wrap justify-center gap-2">
@@ -756,60 +838,41 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
             ? Array.from({ length: 6 }).map((_, i) => (
                 <SkeletonCard key={i} compact />
               ))
-            : subjects
-                .filter((s) => activeTab === 'all' || s.type === activeTab)
-                .filter(
-                  (s) =>
-                    !searchQuery ||
-                    s.name.includes(searchQuery) ||
-                    s.nameEn.toLowerCase().includes(searchQuery.toLowerCase()),
-                )
-                .slice(0, visibleCount)
-                .map((subject) => (
-                  <div key={subject.id}>
-                    <SubjectCard subject={subject} compact />
-                  </div>
-                ))}
+            : filteredSubjects.slice(0, visibleCount).map((subject) => (
+                <div key={subject.id}>
+                  <SubjectCard subject={subject} compact />
+                </div>
+              ))}
         </div>
-        {!loading &&
-          subjects
-            .filter((s) => activeTab === 'all' || s.type === activeTab)
-            .filter((s) => !searchQuery || s.name.includes(searchQuery))
-            .length === 0 && (
-            <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-12 text-center">
-              <span className="text-3xl">🔍</span>
-              <p className="text-sm font-semibold text-gray-600">
-                نتیجه‌ای یافت نشد!
-              </p>
-              <p className="text-xs text-gray-500">
-                با فیلترهای دیگه امتحان کن
-              </p>
-              <button
-                onClick={() => {
-                  setActiveTab('all');
-                  setSearchQuery('');
-                  setVisibleCount(6);
-                }}
-                className="rounded-lg bg-teal-50 px-4 py-2 text-xs font-semibold text-teal-700 transition-all hover:bg-teal-100"
-              >
-                حذف همه فیلترها
-              </button>
-            </div>
-          )}
-        {!loading &&
-          subjects
-            .filter((s) => activeTab === 'all' || s.type === activeTab)
-            .filter((s) => !searchQuery || s.name.includes(searchQuery))
-            .length > visibleCount && (
-            <div className="mt-8 text-center md:mt-10">
-              <Link
-                href="/subjects"
-                className="inline-block rounded-lg border-2 border-dashed border-gray-300 bg-white px-8 py-3 text-xs font-semibold text-gray-600 transition-all hover:border-teal-200 hover:text-teal-500 md:text-sm"
-              >
-                نمایش همه موضوعات ←
-              </Link>
-            </div>
-          )}
+        {!loading && filteredSubjects.length === 0 && (
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-12 text-center">
+            <span className="text-3xl">🔍</span>
+            <p className="text-sm font-semibold text-gray-600">
+              نتیجه‌ای یافت نشد!
+            </p>
+            <p className="text-xs text-gray-500">با فیلترهای دیگه امتحان کن</p>
+            <button
+              onClick={() => {
+                setActiveTab('all');
+                setSearchQuery('');
+                setVisibleCount(6);
+              }}
+              className="rounded-lg bg-teal-50 px-4 py-2 text-xs font-semibold text-teal-700 transition-all hover:bg-teal-100"
+            >
+              حذف همه فیلترها
+            </button>
+          </div>
+        )}
+        {!loading && filteredSubjects.length > visibleCount && (
+          <div className="mt-8 text-center md:mt-10">
+            <Link
+              href="/subjects"
+              className="inline-block rounded-lg border-2 border-dashed border-gray-300 bg-white px-8 py-3 text-xs font-semibold text-gray-600 transition-all hover:border-teal-200 hover:text-teal-500 md:text-sm"
+            >
+              نمایش همه موضوعات ←
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1344,7 +1407,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
       />
       <main id="main-content">
         <Banner />
-        <Hero />
+        {heroSection}
         <div className="border-b border-gray-200" />
         <StatsBar />
         <div className="border-b border-gray-200" />
