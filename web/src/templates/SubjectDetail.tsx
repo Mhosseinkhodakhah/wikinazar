@@ -103,6 +103,14 @@ const SubjectDetail = () => {
           api.getExperiences({ subjectId }),
           api.getSubjectStats(subjectId),
         ]);
+        let subjectImgs: string[];
+        if (subjectData.images && subjectData.images.length > 0) {
+          subjectImgs = subjectData.images;
+        } else if (subjectData.icon) {
+          subjectImgs = [subjectData.icon];
+        } else {
+          subjectImgs = [];
+        }
         const mapped: SubjectData = {
           id: subjectData.id,
           name: subjectData.title,
@@ -114,7 +122,7 @@ const SubjectDetail = () => {
           description: subjectData.description || '',
           tags: [],
           createdAt: subjectData.createdAt,
-          images: subjectData.images && subjectData.images.length > 0 ? subjectData.images : (subjectData.icon ? [subjectData.icon] : []),
+          images: subjectImgs,
         };
         setSubject(mapped);
         setExperiences(
@@ -140,8 +148,16 @@ const SubjectDetail = () => {
             relatedData.subjects
               .filter((s) => s.id !== subjectData.id)
               .slice(0, 4)
-              .map(
-                (s): SubjectData => ({
+              .map((s): SubjectData => {
+                let relatedImgs: string[];
+                if (s.images && s.images.length > 0) {
+                  relatedImgs = s.images;
+                } else if (s.icon) {
+                  relatedImgs = [s.icon];
+                } else {
+                  relatedImgs = [];
+                }
+                return {
                   id: s.id,
                   name: s.title,
                   nameEn: s.slug,
@@ -152,9 +168,9 @@ const SubjectDetail = () => {
                   description: s.description || '',
                   tags: [],
                   createdAt: s.createdAt,
-                  images: s.images && s.images.length > 0 ? s.images : (s.icon ? [s.icon] : []),
-                }),
-              ),
+                  images: relatedImgs,
+                };
+              }),
           );
         }
       } catch {
