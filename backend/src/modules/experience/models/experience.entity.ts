@@ -27,6 +27,9 @@ export class Experience {
   @Column('simple-array', { nullable: true })
   tags!: string[];
 
+  @Column('simple-array', { nullable: true })
+  images!: string[];
+
   @Column({ name: 'author_id' })
   authorId!: string;
 

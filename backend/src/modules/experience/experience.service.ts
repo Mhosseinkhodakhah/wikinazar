@@ -23,6 +23,7 @@ export class ExperienceService {
       rating: exp.rating,
       likes: exp.likes,
       tags: exp.tags ?? [],
+      images: exp.images ?? [],
       authorId: exp.authorId,
       subjectId: exp.subjectId,
       createdAt: exp.createdAt,
@@ -99,6 +100,7 @@ export class ExperienceService {
       content: dto.content,
       rating: dto.rating,
       tags: dto.tags,
+      images: dto.images,
       authorId,
       subjectId: dto.subjectId,
     });

@@ -35,7 +35,7 @@ const RequestSubject = () => {
     description: '',
     category: '',
   });
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [recentRequests, setRecentRequests] = useState<RequestDTO[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -63,18 +63,13 @@ const RequestSubject = () => {
     const { files } = e.target;
     const file = files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setUploadedImages((prev) => [...prev, url]);
-      toast('عکس با موفقیت آپلود شد', 'success');
+      setUploadedImages((prev) => [...prev, file]);
+      toast('عکس با موفقیت انتخاب شد', 'success');
     }
   };
 
   const removeImage = (index: number) => {
-    setUploadedImages((prev) => {
-      const removed = prev[index];
-      if (removed) URL.revokeObjectURL(removed);
-      return prev.filter((_, i) => i !== index);
-    });
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleChange = (
@@ -91,13 +86,21 @@ const RequestSubject = () => {
     if (!formData.title.trim()) return;
     setSubmitting(true);
     try {
+      let imageUrls: string[] = [];
+      if (uploadedImages.length > 0) {
+        const result = await api.uploadRequestImages(uploadedImages);
+        imageUrls = result.images;
+      }
+
       await api.createRequest({
         title: formData.title,
         description: formData.description || undefined,
         category: formData.category || undefined,
+        images: imageUrls.length > 0 ? imageUrls : undefined,
       });
       toast('درخواست شما با موفقیت ثبت شد!', 'success');
       setFormData({ title: '', description: '', category: '' });
+      setUploadedImages([]);
     } catch {
       toast('خطا در ثبت درخواست', 'error');
     } finally {
@@ -308,10 +311,10 @@ const RequestSubject = () => {
                   </div>
                   {uploadedImages.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-3">
-                      {uploadedImages.map((img, i) => (
+                      {uploadedImages.map((file, i) => (
                         <div key={i} className="group relative">
                           <img
-                            src={img}
+                            src={URL.createObjectURL(file)}
                             alt={`upload ${i + 1}`}
                             className="size-20 rounded-xl object-cover shadow-sm"
                           />

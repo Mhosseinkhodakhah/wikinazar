@@ -4,6 +4,7 @@ export const createRequestSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
   description: z.string().max(2000).optional(),
   category: z.string().optional(),
+  images: z.array(z.string()).max(10).optional(),
 });
 
 export const requestQuerySchema = z.object({

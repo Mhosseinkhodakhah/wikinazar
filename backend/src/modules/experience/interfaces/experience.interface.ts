@@ -4,6 +4,7 @@ export interface ExperienceResponse {
   rating: number;
   likes: number;
   tags: string[];
+  images: string[];
   authorId: string;
   subjectId: string;
   createdAt: Date;

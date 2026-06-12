@@ -42,6 +42,7 @@ export class RequestRepository {
     title: string;
     description?: string;
     category?: string;
+    images?: string[];
     requesterId: string;
   }): Promise<Request> {
     const request = this.repo.create(data);

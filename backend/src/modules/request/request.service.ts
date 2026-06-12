@@ -19,6 +19,7 @@ export class RequestService {
       title: req.title,
       description: req.description,
       category: req.category ?? null,
+      images: req.images ?? [],
       votes: req.votes,
       status: req.status,
       requesterId: req.requesterId,
@@ -72,6 +73,7 @@ export class RequestService {
       title: dto.title,
       description: dto.description,
       category: dto.category,
+      images: dto.images,
       requesterId,
     });
 

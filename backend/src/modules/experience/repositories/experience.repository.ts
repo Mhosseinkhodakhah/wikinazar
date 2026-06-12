@@ -51,6 +51,7 @@ export class ExperienceRepository {
     content: string;
     rating: number;
     tags?: string[];
+    images?: string[];
     authorId: string;
     subjectId: string;
   }): Promise<Experience> {

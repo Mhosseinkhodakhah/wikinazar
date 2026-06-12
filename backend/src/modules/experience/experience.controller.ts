@@ -54,4 +54,17 @@ export const experienceController = {
     const result = await experienceService.getSubjectStats(req.params.subjectId);
     res.status(200).json({ success: true, data: result });
   }),
+
+  uploadImages: asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    logger.info('Experience uploadImages', { userId });
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) {
+      res.status(400).json({ success: false, error: { message: 'No files uploaded' } });
+      return;
+    }
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const urls = files.map((f) => `${baseUrl}/uploads/experiences/${f.filename}`);
+    res.status(200).json({ success: true, data: { images: urls } });
+  }),
 };

@@ -23,6 +23,9 @@ export class Request {
   @Column({ nullable: true })
   category!: string;
 
+  @Column('simple-array', { nullable: true })
+  images!: string[];
+
   @Column({ default: 0 })
   votes!: number;
 

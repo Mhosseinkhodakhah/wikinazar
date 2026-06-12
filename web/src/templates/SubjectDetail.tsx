@@ -48,6 +48,7 @@ type DetailProps = {
   setNewComment: (s: string) => void;
   photoPreview: string | null;
   setPhotoPreview: (s: string | null) => void;
+  setPhotoFile: (f: File | null) => void;
   setLightboxImg: (s: string) => void;
   lightboxImg: string;
   onSubmitExperience: () => Promise<void>;
@@ -87,6 +88,7 @@ const SubjectDetail = () => {
   const [selectedImg, setSelectedImg] = useState(0);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -168,14 +170,22 @@ const SubjectDetail = () => {
       return;
     }
     try {
+      let imageUrls: string[] = [];
+      if (photoFile) {
+        const result = await api.uploadExperienceImages([photoFile]);
+        imageUrls = result.images;
+      }
+
       await api.createExperience({
         content: newComment,
         rating: newRating,
         subjectId,
+        images: imageUrls.length > 0 ? imageUrls : undefined,
       });
       toast('تجربه شما ثبت شد!', 'success');
       setNewComment('');
       setNewRating(0);
+      setPhotoFile(null);
       setPhotoPreview(null);
       const expData = await api.getExperiences({ subjectId });
       setExperiences(
@@ -270,6 +280,7 @@ const SubjectDetail = () => {
           setNewComment={setNewComment}
           photoPreview={photoPreview}
           setPhotoPreview={setPhotoPreview}
+          setPhotoFile={setPhotoFile}
           setLightboxImg={setLightboxImg}
           lightboxImg={lightboxImg}
           onSubmitExperience={handleSubmit}
@@ -301,6 +312,7 @@ const SubjectDetail = () => {
         setNewComment={setNewComment}
         photoPreview={photoPreview}
         setPhotoPreview={setPhotoPreview}
+        setPhotoFile={setPhotoFile}
         setLightboxImg={setLightboxImg}
         lightboxImg={lightboxImg}
         onSubmitExperience={handleSubmit}
@@ -330,6 +342,7 @@ const MobileSubjectDetail = ({
   setNewComment,
   photoPreview,
   setPhotoPreview,
+  setPhotoFile,
   setLightboxImg,
   lightboxImg,
   onSubmitExperience,
@@ -518,9 +531,11 @@ const MobileSubjectDetail = ({
                 accept="image/*"
                 className="hidden"
                 onChange={(e) => {
-                  if (e.target.files?.[0]) {
+                  const file = e.target.files?.[0];
+                  if (file) {
                     if (photoPreview) URL.revokeObjectURL(photoPreview);
-                    setPhotoPreview(URL.createObjectURL(e.target.files[0]));
+                    setPhotoFile(file);
+                    setPhotoPreview(URL.createObjectURL(file));
                     toast('عکس اضافه شد', 'success');
                   }
                 }}
@@ -702,6 +717,7 @@ const DesktopSubjectDetail = ({
   setNewComment,
   photoPreview,
   setPhotoPreview,
+  setPhotoFile,
   setLightboxImg,
   lightboxImg,
   onSubmitExperience,
@@ -948,9 +964,11 @@ const DesktopSubjectDetail = ({
                   accept="image/*"
                   className="hidden"
                   onChange={(e) => {
-                    if (e.target.files?.[0]) {
+                    const file = e.target.files?.[0];
+                    if (file) {
                       if (photoPreview) URL.revokeObjectURL(photoPreview);
-                      setPhotoPreview(URL.createObjectURL(e.target.files[0]));
+                      setPhotoFile(file);
+                      setPhotoPreview(URL.createObjectURL(file));
                       toast('عکس اضافه شد', 'success');
                     }
                   }}

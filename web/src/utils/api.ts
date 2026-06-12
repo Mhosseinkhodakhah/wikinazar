@@ -229,6 +229,7 @@ export const api = {
     rating: number;
     subjectId: string;
     tags?: string[];
+    images?: string[];
   }) =>
     request<ExperienceDTO>('/experiences', {
       method: 'POST',
@@ -283,6 +284,7 @@ export const api = {
     title: string;
     description?: string;
     category?: string;
+    images?: string[];
   }) =>
     request<RequestDTO>('/requests', {
       method: 'POST',
@@ -299,6 +301,46 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     }),
+
+  uploadExperienceImages: async (files: File[]) => {
+    const formData = new FormData();
+    files.forEach((f) => formData.append('images', f));
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE}/experiences/images`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new ApiError(
+        json.error?.message || 'Image upload failed',
+        res.status,
+      );
+    }
+    return json.data as { images: string[] };
+  },
+
+  uploadRequestImages: async (files: File[]) => {
+    const formData = new FormData();
+    files.forEach((f) => formData.append('images', f));
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE}/requests/images`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new ApiError(
+        json.error?.message || 'Image upload failed',
+        res.status,
+      );
+    }
+    return json.data as { images: string[] };
+  },
 
   // Profile
   updateProfile: (data: { displayName?: string; bio?: string }) =>
@@ -372,6 +414,7 @@ export interface ExperienceDTO {
   rating: number;
   likes: number;
   tags: string[];
+  images: string[];
   authorId: string;
   subjectId: string;
   createdAt: string;
@@ -394,6 +437,7 @@ export interface RequestDTO {
   title: string;
   description: string | null;
   category: string | null;
+  images: string[];
   votes: number;
   status: string;
   requesterId: string;

@@ -41,7 +41,7 @@ const SubmitExperience = () => {
   const [rating, setRating] = useState(0);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -136,6 +136,7 @@ const SubmitExperience = () => {
 
     try {
       let subjectId: string;
+      let imageUrls: string[] = [];
 
       if (showNewSubject) {
         const created = await api.createSubject({
@@ -148,11 +149,17 @@ const SubmitExperience = () => {
         subjectId = selectedSubject!.id;
       }
 
+      if (uploadedImages.length > 0) {
+        const result = await api.uploadExperienceImages(uploadedImages);
+        imageUrls = result.images;
+      }
+
       await api.createExperience({
         content: comment.trim(),
         rating,
         subjectId,
         tags: tags.length > 0 ? tags : undefined,
+        images: imageUrls.length > 0 ? imageUrls : undefined,
       });
 
       toast('تجربه شما با موفقیت ثبت شد!', 'success');
@@ -520,9 +527,8 @@ const SubmitExperience = () => {
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              const url = URL.createObjectURL(file);
-                              setUploadedImages((prev) => [...prev, url]);
-                              toast('عکس با موفقیت آپلود شد', 'success');
+                              setUploadedImages((prev) => [...prev, file]);
+                              toast('عکس با موفقیت انتخاب شد', 'success');
                             }
                           }}
                         />
@@ -535,20 +541,18 @@ const SubmitExperience = () => {
                     </div>
                     {uploadedImages.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-3">
-                        {uploadedImages.map((img, i) => (
+                        {uploadedImages.map((file, i) => (
                           <div key={i} className="group relative">
                             <img
-                              src={img}
+                              src={URL.createObjectURL(file)}
                               alt={`upload ${i + 1}`}
                               className="size-20 rounded-xl object-cover shadow-sm"
                             />
                             <button
                               onClick={() =>
-                                setUploadedImages((prev) => {
-                                  const removed = prev[i];
-                                  if (removed) URL.revokeObjectURL(removed);
-                                  return prev.filter((_, idx) => idx !== i);
-                                })
+                                setUploadedImages((prev) =>
+                                  prev.filter((_, idx) => idx !== i),
+                                )
                               }
                               className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-sm transition-all hover:bg-red-600"
                             >
