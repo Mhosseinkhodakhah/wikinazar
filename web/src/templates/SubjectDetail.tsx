@@ -6,6 +6,7 @@ import { LoginModal } from '../components/LoginModal';
 import { Meta } from '../layout/Meta';
 import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
+import { ClickableImage } from '../utils/ClickableImage';
 import { Lightbox } from '../utils/Lightbox';
 import { StarRating } from '../utils/StarRating';
 import { useToast } from '../utils/ToastContext';
@@ -103,6 +104,7 @@ const SubjectDetail = () => {
           api.getExperiences({ subjectId }),
           api.getSubjectStats(subjectId),
         ]);
+
         let subjectImgs: string[];
         if (subjectData.images && subjectData.images.length > 0) {
           subjectImgs = subjectData.images;
@@ -118,7 +120,7 @@ const SubjectDetail = () => {
           type: subjectData.category || '',
           rating: statsData.averageRating,
           reviews: statsData.totalExperiences,
-          image: subjectData.images?.[0] || subjectData.icon || '',
+          image: subjectData.images?.[0] || '',
           description: subjectData.description || '',
           tags: [],
           createdAt: subjectData.createdAt,
@@ -632,10 +634,10 @@ const MobileSubjectDetail = ({
             </p>
             {exp.picture && (
               <div className="mb-2">
-                <img
+                <ClickableImage
                   src={exp.picture}
                   alt="تصویر تجربه"
-                  className="max-h-40 rounded-lg object-cover"
+                  className="max-h-40 w-full rounded-lg object-cover"
                   loading="lazy"
                 />
               </div>
@@ -1066,10 +1068,10 @@ const DesktopSubjectDetail = ({
             </p>
             {exp.picture && (
               <div className="mb-3">
-                <img
+                <ClickableImage
                   src={exp.picture}
                   alt="تصویر تجربه"
-                  className="max-h-60 rounded-lg object-cover"
+                  className="max-h-60 w-full rounded-lg object-cover"
                   loading="lazy"
                 />
               </div>

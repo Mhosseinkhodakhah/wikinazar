@@ -9,6 +9,7 @@ import {
   type SubjectDTO,
 } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
+import { ClickableImage } from '../utils/ClickableImage';
 
 function formatRelativeTime(iso: string): string {
   const now = Date.now();
@@ -31,8 +32,6 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(diffDay / 365)} سال پیش`;
 }
 
-const fallbackImage =
-  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400';
 const fallbackAvatar =
   'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100';
 
@@ -96,7 +95,9 @@ const MobileFeed = () => {
             type: s.category || 'other',
             rating: 0,
             reviews: s.experienceCount,
-            image: s.icon || fallbackImage,
+            image:
+              s.icon ||
+              'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400',
             description: s.description || '',
             tags: [],
           })),
@@ -293,10 +294,11 @@ const MobileFeed = () => {
                   }
                   className="flex cursor-pointer items-center gap-3 p-3 transition-colors hover:bg-gray-50"
                 >
-                  <img
+                  <ClickableImage
                     src={subject.image}
                     alt={subject.name}
                     className="size-16 shrink-0 rounded-xl object-cover shadow-sm"
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
@@ -380,10 +382,10 @@ const MobileFeed = () => {
                             </p>
                             {exp.picture && (
                               <div className="mt-1.5 pr-9">
-                                <img
+                                <ClickableImage
                                   src={exp.picture}
                                   alt="تصویر تجربه"
-                                  className="max-h-32 rounded-lg object-cover"
+                                  className="max-h-32 w-full rounded-lg object-cover"
                                   loading="lazy"
                                 />
                               </div>

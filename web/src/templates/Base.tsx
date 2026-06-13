@@ -7,6 +7,7 @@ import { Meta } from '../layout/Meta';
 import type { ExperienceDTO, RequestDTO, SubjectDTO } from '../utils/api';
 import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
+import { ClickableImage } from '../utils/ClickableImage';
 import { Lightbox } from '../utils/Lightbox';
 import { SkeletonCard } from '../utils/Skeleton';
 import { useToast } from '../utils/ToastContext';
@@ -255,9 +256,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
     type: s.category || 'other',
     rating: 0,
     reviews: s.experienceCount,
-    image:
-      s.icon ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(s.title)}&background=teal&color=fff`,
+    image: s.images?.length && s?.images[0] ? s?.images[0] : '',
     description: s.description || '',
     tags: [],
     featured: false,
@@ -1055,10 +1054,10 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
               </p>
               {active.picture && (
                 <div className="mb-3">
-                  <img
+                  <ClickableImage
                     src={active.picture}
                     alt="تصویر تجربه"
-                    className="max-h-40 rounded-lg object-cover"
+                    className="max-h-40 w-full rounded-lg object-cover"
                     loading="lazy"
                   />
                 </div>

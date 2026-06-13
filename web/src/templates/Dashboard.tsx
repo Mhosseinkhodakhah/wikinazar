@@ -10,6 +10,7 @@ import {
   type RequestDTO,
 } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
+import { ClickableImage } from '../utils/ClickableImage';
 import { useToast } from '../utils/ToastContext';
 import { useMobile } from '../utils/useMobile';
 
@@ -48,6 +49,7 @@ type DisplayExperience = {
   comment: string;
   date: string;
   likes: number;
+  images: string[];
 };
 
 type DisplayRequest = {
@@ -68,6 +70,7 @@ function mapExperience(exp: ExperienceDTO): DisplayExperience {
     comment: exp.content,
     date: formatDate(exp.createdAt),
     likes: exp.likes,
+    images: exp.images ?? [],
   };
 }
 
@@ -418,6 +421,16 @@ const DesktopDashboardView = ({
                     <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-700">
                       {exp.comment}
                     </p>
+                    {exp.images.length > 0 && (
+                      <div className="mt-2">
+                        <ClickableImage
+                          src={exp.images[0]}
+                          alt="تصویر تجربه"
+                          className="h-24 w-full rounded-lg object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
                     <div className="mt-3 flex items-center justify-between">
                       <span className="flex items-center gap-1 text-xs text-gray-600">
                         ❤️ {exp.likes}
@@ -577,6 +590,16 @@ const MobileDashboardView = ({
               <p className="mt-1 text-xs leading-relaxed text-gray-700">
                 {exp.comment}
               </p>
+              {exp.images.length > 0 && (
+                <div className="mt-2">
+                  <ClickableImage
+                    src={exp.images[0]}
+                    alt="تصویر تجربه"
+                    className="h-20 w-full rounded-lg object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
               <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2">
                 <span className="text-xs font-semibold text-gray-600">
                   ❤️ {exp.likes}

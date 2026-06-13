@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Meta } from '../layout/Meta';
 import { api } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
+import { ClickableImage } from '../utils/ClickableImage';
 import { useToast } from '../utils/ToastContext';
 
 function toPersianNum(num: number): string {
@@ -316,10 +317,11 @@ const AllSubjects = () => {
                   }
                   className="flex w-full items-center gap-4 p-4 text-right transition-colors hover:bg-gray-50"
                 >
-                  <img
+                  <ClickableImage
                     src={subject.image}
                     alt={subject.name}
                     className="size-20 shrink-0 rounded-xl object-cover shadow-sm"
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
@@ -432,10 +434,10 @@ const AllSubjects = () => {
                             </p>
                             {exp.picture && (
                               <div className="mt-2 pr-10">
-                                <img
+                                <ClickableImage
                                   src={exp.picture}
                                   alt="تصویر تجربه"
-                                  className="max-h-40 rounded-lg object-cover"
+                                  className="max-h-40 w-full rounded-lg object-cover"
                                   loading="lazy"
                                 />
                               </div>
