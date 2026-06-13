@@ -378,6 +378,20 @@ export const api = {
     return json.data as { avatarUrl: string };
   },
 
+  // Feed
+  getFeed: (params?: { page?: number; limit?: number }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    const qs = searchParams.toString();
+    return request<{
+      items: FeedItemDTO[];
+      total: number;
+      page: number;
+      limit: number;
+    }>(`/feed${qs ? `?${qs}` : ''}`);
+  },
+
   // Dashboard
   getCategories: () => request<CategoryDTO[]>('/categories'),
 
@@ -457,6 +471,28 @@ export interface CategoryDTO {
   slug: string;
   name: string;
   icon: string;
+}
+
+export interface FeedItemDTO {
+  type: 'subject' | 'request';
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+  icon?: string | null;
+  slug?: string;
+  experienceCount?: number;
+  votes?: number;
+  status?: string;
+  requesterId?: string;
+  requester?: {
+    id: string;
+    username: string;
+    displayName: string | null;
+  } | null;
 }
 
 export interface DashboardDTO {

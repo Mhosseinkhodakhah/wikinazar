@@ -1,4 +1,4 @@
-const API_BASE = '/api/v1/admin';
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1/admin';
 
 function getToken(): string | null {
   return localStorage.getItem('admin_access_token');

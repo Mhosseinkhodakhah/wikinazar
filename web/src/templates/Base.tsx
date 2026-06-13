@@ -619,43 +619,6 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
     </div>
   );
 
-  const CategoryGrid = () => (
-    <div className="border-b border-gray-200 bg-white py-12 md:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 text-center md:mb-10">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-teal-500 md:text-xs">
-            دسته‌بندی‌ها
-          </span>
-          <h2 className="mt-3 text-xl font-bold text-gray-900 md:mt-4 md:text-3xl">
-            بر اساس دسته‌بندی جستجو کن
-          </h2>
-          <p className="mx-auto mt-2 max-w-xl text-xs text-gray-600 md:text-sm">
-            موضوع مورد علاقه‌ات رو انتخاب کن و تجربه دیگران رو ببین
-          </p>
-        </div>
-        <div className="grid grid-cols-4 gap-2 md:grid-cols-9 md:gap-4">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveTab(cat.id)}
-              aria-label={`دسته‌بندی ${cat.name}`}
-              className={`rounded-xl border p-3 text-center transition-all duration-300 md:p-5 ${
-                activeTab === cat.id
-                  ? 'border-teal-200 bg-gradient-to-b from-teal-50 to-white text-teal-600 shadow-md'
-                  : 'border-gray-300 bg-white text-gray-600 hover:border-teal-200 hover:bg-teal-50/50 hover:text-gray-700'
-              }`}
-            >
-              <div className="mb-1 text-lg md:mb-2 md:text-2xl">{cat.icon}</div>
-              <div className="text-[10px] font-semibold md:text-sm">
-                {cat.name}
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
   const SubjectCard = ({
     subject,
     compact,
@@ -1425,7 +1388,7 @@ const Base = ({ showLoginByDefault }: { showLoginByDefault?: boolean }) => {
         <div className="border-b border-gray-200" />
         <StatsBar />
         <div className="border-b border-gray-200" />
-        <CategoryGrid />
+        {/* <CategoryGrid /> */}
         <TrendingSection />
         <AllSubjects />
         <ExperiencesSection />

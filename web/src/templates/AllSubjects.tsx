@@ -106,7 +106,7 @@ const AllSubjects = () => {
             type: s.category || 'other',
             rating: 0,
             reviews: s.experienceCount,
-            image: s.icon || fallbackImage,
+            image: s.images?.length && s.images[0] ? s.images[0] : fallbackImage,
             description: s.description || '',
             tags: [],
             createdAt: formatRelativeTime(s.createdAt),
